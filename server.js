@@ -173,7 +173,10 @@ function handleJoin(ws,pid,code,msg){
   if(!name||!name.trim())return sendErr(ws,'Enter a name.');
   if(!['red','blue'].includes(team))return sendErr(ws,'Pick a team.');
   if(!['spymaster','operative'].includes(role))return sendErr(ws,'Pick a role.');
-  if(gs.phase==='playing'&&role==='spymaster')return sendErr(ws,'Cannot join as spymaster mid-game. Pick Operative.');
+  if(gs.phase==='playing'&&role==='spymaster'){
+    const key=team==='red'?'redSpymasterId':'blueSpymasterId';
+    if(gs[key]&&gs[key]!==pid)return sendErr(ws,'Spymaster slot already taken!');
+  }
   if(gs.phase==='gameover')return sendErr(ws,'Game is over. Wait for the next round.');
   const trimName=name.trim().slice(0,20);
   // Check duplicate names

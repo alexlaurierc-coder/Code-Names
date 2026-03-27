@@ -214,6 +214,28 @@ input[type=text]::placeholder{color:var(--muted)}
 .card-vote-btn.i-voted{background:rgba(39,174,96,.35);border-color:#27ae60;color:#7defa0}
 .vote-count{font-size:.65rem;opacity:.85}
 
+/* ── GAME SIDEBAR DRAG ZONES ── */
+.sidebar-team-zone{border-radius:10px;overflow:hidden;margin-bottom:.6rem;border:1px solid transparent}
+.sidebar-team-zone.red{border-color:rgba(231,76,60,.25);background:rgba(192,57,43,.05)}
+.sidebar-team-zone.blue{border-color:rgba(41,128,185,.25);background:rgba(26,82,118,.06)}
+.sidebar-team-hdr{padding:.4rem .65rem;font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.sidebar-team-hdr.red{background:linear-gradient(135deg,rgba(127,29,29,.5),rgba(192,57,43,.35));color:#ff9090}
+.sidebar-team-hdr.blue{background:linear-gradient(135deg,rgba(30,58,95,.5),rgba(26,82,118,.35));color:#90c4ff}
+.sidebar-role-zone{padding:.4rem .5rem;min-height:44px;transition:all .18s;border-bottom:1px solid transparent}
+.sidebar-role-zone.sm-z{border-bottom-color:rgba(240,192,64,.12)}
+.sidebar-role-zone.drag-over{background:rgba(240,192,64,.12)!important;outline:1px dashed var(--gold)}
+.sidebar-role-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:.3rem}
+.sidebar-player{display:flex;align-items:center;gap:.4rem;padding:.3rem .4rem;border-radius:6px;
+  background:var(--surface2);border:1px solid var(--border);margin-bottom:.25rem;cursor:grab;
+  font-size:.8rem;font-weight:600}
+.sidebar-player:active{cursor:grabbing}
+.sidebar-player.dragging{opacity:.35}
+.sidebar-player.is-me{border-color:rgba(91,79,207,.45)}
+.sidebar-player .sp-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sidebar-player .sp-you{font-size:.62rem;color:var(--muted);font-weight:400}
+.sidebar-player .kick-btn{font-size:.62rem;padding:.1rem .35rem}
+.sidebar-role-empty{font-size:.72rem;color:var(--muted);font-style:italic;padding:.15rem .2rem;opacity:.65}
+
 /* ── GAME BODY ── */
 .game-body{display:grid;grid-template-columns:1fr 280px;gap:1rem;align-items:start}
 @media(max-width:900px){.game-body{grid-template-columns:1fr}}
@@ -415,38 +437,39 @@ input[type=text]::placeholder{color:var(--muted)}
   <button class="btn btn-primary" onclick="goHome()">Return Home</button>
 </div>
 
-<!-- JOIN OVERLAY — shown on URL link join OR mid-game spectate -->
-<div id="join-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);
+<!-- JOIN OVERLAY -->
+<div id="join-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);
   z-index:200;align-items:center;justify-content:center;">
-  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;
-    padding:2.5rem 2rem;width:min(420px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.7)">
-    <div style="font-size:1.4rem;font-weight:900;margin-bottom:.25rem" id="join-overlay-title">Join Game</div>
-    <div style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem" id="join-overlay-sub">Pick your team and role to play</div>
+  <div id="join-overlay-box" style="border-radius:22px;padding:2.5rem 2rem;width:min(440px,94vw);
+    transition:border-color .3s,box-shadow .3s;border:2px solid rgba(231,76,60,.5);
+    box-shadow:0 0 50px rgba(231,76,60,.2),0 20px 60px rgba(0,0,0,.8);
+    background:linear-gradient(160deg,rgba(30,10,20,.98),rgba(14,14,22,.98))">
 
-    <div style="display:flex;flex-direction:column;gap:1rem">
-      <div>
-        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.4rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase">Your Name</div>
-        <input type="text" id="overlay-name" placeholder="Enter your name" maxlength="20" onkeydown="if(event.key==='Enter')overlayJoin()">
-      </div>
-      <div>
-        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.4rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase">Team</div>
-        <div class="seg" id="overlay-team-seg">
-          <button class="seg-btn active" data-val="red" onclick="setOverlaySeg('team','red',this)">🔴 Red</button>
-          <button class="seg-btn" data-val="blue" onclick="setOverlaySeg('team','blue',this)">🔵 Blue</button>
-        </div>
-      </div>
-      <div id="overlay-role-wrap">
-        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.4rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase">Role</div>
-        <div class="seg" id="overlay-role-seg">
-          <button class="seg-btn active" data-val="operative" onclick="setOverlaySeg('role','operative',this)">🕵️ Operative</button>
-          <button class="seg-btn" data-val="spymaster" onclick="setOverlaySeg('role','spymaster',this)">👁 Spymaster</button>
-        </div>
-        <div id="overlay-role-note" style="font-size:.75rem;color:var(--muted);margin-top:.4rem;display:none">
-          ⚠️ Spymaster slots are locked once the game starts. Only Operative is available.
-        </div>
-      </div>
-      <button class="btn btn-primary" style="margin-top:.25rem" onclick="overlayJoin()">Join Game</button>
+    <div style="font-size:1.5rem;font-weight:900;margin-bottom:.2rem;transition:color .3s" id="join-overlay-title">Join Game</div>
+    <div style="font-size:.85rem;margin-bottom:1.5rem;transition:color .3s" id="join-overlay-sub">Pick your team and role</div>
+
+    <div style="font-size:.7rem;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem">Your Name</div>
+    <input type="text" id="overlay-name" placeholder="Enter your name" maxlength="20"
+      style="margin-bottom:1.2rem" onkeydown="if(event.key==='Enter')overlayJoin()">
+
+    <div style="font-size:.7rem;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem">1. Choose Team</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:1.2rem">
+      <button class="team-pick-btn red-pick active" id="ov-pick-red" onclick="setOverlayTeam('red')">🔴 Red Team</button>
+      <button class="team-pick-btn blue-pick" id="ov-pick-blue" onclick="setOverlayTeam('blue')">🔵 Blue Team</button>
     </div>
+
+    <div style="font-size:.7rem;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem">2. Choose Role</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.5rem">
+      <button class="role-pick-btn active" id="ov-pick-op" onclick="setOverlayRole('operative')">
+        🕵️ Operative<span class="role-sub">Guess the words</span>
+      </button>
+      <button class="role-pick-btn" id="ov-pick-sm" onclick="setOverlayRole('spymaster')">
+        👁 Spymaster<span class="role-sub" id="ov-sm-label">Give the clues</span>
+      </button>
+    </div>
+    <div id="overlay-role-note" style="font-size:.75rem;color:#e0a040;margin-bottom:.9rem;display:none;padding:.4rem .6rem;background:rgba(240,192,64,.08);border-radius:6px;border:1px solid rgba(240,192,64,.2)"></div>
+
+    <button class="btn btn-primary" style="width:100%;margin-top:.35rem" id="ov-join-btn" onclick="overlayJoin()">Join Game</button>
   </div>
 </div>
 
@@ -454,6 +477,40 @@ input[type=text]::placeholder{color:var(--muted)}
 <div class="error-toast" id="error-toast"></div>
 
 <script>
+// ===== SOUNDS =====
+const SND = (() => {
+  let ctx = null;
+  function getCtx() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    return ctx;
+  }
+  function tone(freq, type, dur, vol, t0 = 0) {
+    try {
+      const c = getCtx();
+      const o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = type; o.frequency.value = freq;
+      const start = c.currentTime + t0;
+      g.gain.setValueAtTime(vol, start);
+      g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+      o.start(start); o.stop(start + dur + 0.02);
+    } catch(e) {}
+  }
+  return {
+    think:     () => tone(900, 'sine', 0.07, 0.05),
+    vote:      () => { tone(600, 'sine', 0.08, 0.07); tone(900, 'sine', 0.1, 0.05, 0.06); },
+    clue:      () => { tone(660, 'triangle', 0.15, 0.09); tone(880, 'triangle', 0.18, 0.07, 0.12); },
+    correct:   () => { tone(523, 'sine', 0.12, 0.08); tone(659, 'sine', 0.12, 0.07, 0.1); tone(784, 'sine', 0.2, 0.06, 0.2); },
+    wrong:     () => { tone(280, 'sawtooth', 0.12, 0.07); tone(210, 'sawtooth', 0.18, 0.05, 0.1); },
+    neutral:   () => tone(380, 'sine', 0.1, 0.05),
+    assassin:  () => { tone(160, 'sawtooth', 0.25, 0.12); tone(110, 'sawtooth', 0.35, 0.09, 0.2); },
+    turnChange:() => { tone(440, 'sine', 0.1, 0.07); tone(330, 'sine', 0.1, 0.06, 0.12); },
+    gameOver:  () => { tone(523,'sine',.18,.1); tone(659,'sine',.2,.09,.15); tone(784,'sine',.25,.08,.32); tone(1047,'sine',.45,.07,.52); },
+    join:      () => tone(800, 'sine', 0.1, 0.04),
+    endTurn:   () => { tone(350, 'sine', 0.1, 0.06); tone(280, 'sine', 0.12, 0.05, 0.1); },
+  };
+})();
+
 // ===== IDENTITY =====
 let pid = localStorage.getItem('cn_pid');
 if (!pid) { pid = crypto.randomUUID(); localStorage.setItem('cn_pid', pid); }
@@ -521,11 +578,37 @@ function handleMsg(msg) {
   }
 }
 
+let prevState = null;
+
 // ===== STATE =====
 function applyState(s) {
+  const prev = prevState;
+  prevState = s;
   gameState = s;
   const me = s.players.find(p => p.id === pid);
   if (me) myName = me.name;
+
+  // Sound triggers on state changes
+  if (prev && prev.phase === 'playing' && s.phase === 'playing') {
+    if (!prev.clue && s.clue) SND.clue();
+    else if (prev.turn !== s.turn) SND.turnChange();
+    const prevRevealed = prev.revealed.filter(Boolean).length;
+    const nowRevealed = s.revealed.filter(Boolean).length;
+    if (nowRevealed > prevRevealed) {
+      for (let i = 0; i < 25; i++) {
+        if (!prev.revealed[i] && s.revealed[i]) {
+          const c = s.colors[i];
+          if (c === 'assassin') SND.assassin();
+          else if (c === 'neutral') SND.neutral();
+          else if (c === prev.turn) SND.correct();
+          else SND.wrong();
+          break;
+        }
+      }
+    }
+    if (prev.players.length < s.players.length) SND.join();
+  }
+  if (prev && prev.phase !== 'gameover' && s.phase === 'gameover') SND.gameOver();
   if (s.phase === 'lobby') {
     renderLobby(s);
     if (currentScreen() !== 'lobby') showScreen('lobby');
@@ -798,24 +881,52 @@ function renderGamePlayers(s) {
   const list = document.getElementById('game-players-list');
   list.innerHTML = '';
   for (const team of ['red', 'blue']) {
-    const lbl = document.createElement('div'); lbl.className = 'team-label';
-    lbl.textContent = (team === 'red' ? '🔴' : '🔵') + ' ' + (team === 'red' ? 'Red' : 'Blue');
-    list.appendChild(lbl);
-    const tps = s.players.filter(p => p.team === team);
-    if (!tps.length) { const e = document.createElement('div'); e.style.cssText = 'color:var(--muted);font-size:.8rem;padding:.25rem .5rem'; e.textContent = 'No players'; list.appendChild(e); }
-    for (const p of tps) {
-      const row = document.createElement('div'); row.className = 'gp-row' + (p.team === s.turn ? ' active-team' : '');
-      const rc = p.team === 'red' ? (p.role === 'spymaster' ? 'r-sm' : 'r-op') : (p.role === 'spymaster' ? 'b-sm' : 'b-op');
-      const otherTeam = p.team === 'red' ? 'blue' : 'red';
-      const otherRole = p.role === 'operative' ? 'spymaster' : 'operative';
-      const hostCtrl = s.isHost && p.id !== pid ? `
-        <button class="move-btn" style="font-size:.62rem;padding:.15rem .4rem" onclick="movePlayer('${p.id}','${otherTeam}','${p.role}')" title="Switch team">⇄T</button>
-        <button class="move-btn" style="font-size:.62rem;padding:.15rem .4rem" onclick="movePlayer('${p.id}','${p.team}','${otherRole}')" title="Switch role">⇄R</button>
-        <button class="kick-btn" style="font-size:.65rem;padding:.15rem .4rem" onclick="kickPlayer('${p.id}')">✕</button>` : '';
-      row.innerHTML = `<span class="gp-name">${esc(p.name)}${p.id === pid ? ' <span style="color:var(--muted);font-size:.65rem">(you)</span>' : ''}</span><span class="gp-role ${rc}">${p.role === 'spymaster' ? '👁 SM' : '🕵️'}</span>${hostCtrl}`;
-      list.appendChild(row);
+    const zone = document.createElement('div');
+    zone.className = `sidebar-team-zone ${team}`;
+    const hdr = document.createElement('div');
+    hdr.className = `sidebar-team-hdr ${team}`;
+    hdr.textContent = (team === 'red' ? '🔴 Red Team' : '🔵 Blue Team');
+    zone.appendChild(hdr);
+    for (const role of ['spymaster', 'operative']) {
+      const rz = document.createElement('div');
+      rz.className = `sidebar-role-zone ${role === 'spymaster' ? 'sm-z' : ''}`;
+      if (s.isHost) {
+        rz.ondragover = e => { e.preventDefault(); rz.classList.add('drag-over'); };
+        rz.ondragleave = () => rz.classList.remove('drag-over');
+        rz.ondrop = e => {
+          e.preventDefault(); rz.classList.remove('drag-over');
+          const id = e.dataTransfer.getData('playerId');
+          if (id) movePlayer(id, team, role);
+        };
+      }
+      const lbl = document.createElement('div');
+      lbl.className = 'sidebar-role-lbl';
+      lbl.textContent = role === 'spymaster' ? '👁 Spymaster' : '🕵️ Operatives';
+      rz.appendChild(lbl);
+      const players = s.players.filter(p => p.team === team && p.role === role);
+      if (!players.length) {
+        const emp = document.createElement('div'); emp.className = 'sidebar-role-empty';
+        emp.textContent = s.isHost ? 'Drag here' : '—'; rz.appendChild(emp);
+      }
+      for (const p of players) {
+        const card = document.createElement('div');
+        card.className = 'sidebar-player' + (p.id === pid ? ' is-me' : '');
+        card.draggable = s.isHost || p.id === pid;
+        card.ondragstart = e => { e.dataTransfer.setData('playerId', p.id); setTimeout(() => card.classList.add('dragging'), 0); };
+        card.ondragend = () => card.classList.remove('dragging');
+        const nm = document.createElement('span'); nm.className = 'sp-name';
+        nm.innerHTML = esc(p.name) + (p.id === pid ? ' <span class="sp-you">(you)</span>' : '');
+        card.appendChild(nm);
+        if (s.isHost && p.id !== pid) {
+          const kb = document.createElement('button'); kb.className = 'kick-btn';
+          kb.textContent = '✕'; kb.onclick = e => { e.stopPropagation(); kickPlayer(p.id); };
+          card.appendChild(kb);
+        }
+        rz.appendChild(card);
+      }
+      zone.appendChild(rz);
     }
-    const sp = document.createElement('div'); sp.style.height = '.4rem'; list.appendChild(sp);
+    list.appendChild(zone);
   }
 }
 
@@ -860,12 +971,12 @@ function sendJoin() {
 function startGame() { send({ type: 'start' }); }
 function resetRoom() { send({ type: 'reset' }); }
 function newRound() { send({ type: 'newround' }); }
-function endTurn() { send({ type: 'endturn' }); }
+function endTurn() { SND.endTurn(); send({ type: 'endturn' }); }
 function leaveRoom() { send({ type: 'abandon' }); }
 function kickPlayer(id) { send({ type: 'kick', playerId: id }); }
 function movePlayer(id, team, role) { send({ type: 'move_player', playerId: id, team, role }); }
-function sendThink(idx) { send({ type: 'think', index: idx }); }
-function sendVote(idx, wasVoted) { send({ type: 'vote', index: idx, wasVoted }); }
+function sendThink(idx) { SND.think(); send({ type: 'think', index: idx }); }
+function sendVote(idx, wasVoted) { SND.vote(); send({ type: 'vote', index: idx, wasVoted }); }
 
 function submitClue() {
   const word = (document.getElementById('clue-word-inp')?.value || '').trim();
@@ -876,43 +987,69 @@ function submitClue() {
 
 // ===== JOIN OVERLAY =====
 function showJoinOverlay(midGame) {
-  const overlay = document.getElementById('join-overlay');
-  overlay.style.display = 'flex';
+  document.getElementById('join-overlay').style.display = 'flex';
   document.getElementById('join-overlay-title').textContent = midGame ? 'Join the Game' : 'Join Room';
   document.getElementById('join-overlay-sub').textContent = midGame
-    ? 'The game is in progress — join as an operative'
+    ? 'The game is in progress — pick a team and role'
     : 'Pick your team and role to play';
   if (myName) document.getElementById('overlay-name').value = myName;
-  // Check slot availability with real state
-  if (gameState) updateOverlaySpymasterAvailability(gameState);
+  setOverlayTeam(overlayTeam); // apply current theme + check availability
+  setOverlayRole(overlayRole);
   setTimeout(() => document.getElementById('overlay-name').focus(), 50);
 }
 function hideJoinOverlay() {
   document.getElementById('join-overlay').style.display = 'none';
 }
-function setOverlaySeg(type, val, el) {
-  if (!el) return;
-  if (type === 'team') overlayTeam = val; else overlayRole = val;
-  document.querySelectorAll(`#overlay-${type}-seg .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.val === val));
-  // Re-check spymaster when team changes in overlay
-  if (type === 'team' && gameState) updateOverlaySpymasterAvailability(gameState);
+// ===== OVERLAY TEAM/ROLE =====
+function setOverlayTeam(team) {
+  overlayTeam = team;
+  document.getElementById('ov-pick-red').classList.toggle('active', team === 'red');
+  document.getElementById('ov-pick-blue').classList.toggle('active', team === 'blue');
+  // Theme the box
+  const box = document.getElementById('join-overlay-box');
+  const title = document.getElementById('join-overlay-title');
+  const sub = document.getElementById('join-overlay-sub');
+  if (team === 'red') {
+    box.style.borderColor = 'rgba(231,76,60,.6)';
+    box.style.boxShadow = '0 0 50px rgba(231,76,60,.25),0 20px 60px rgba(0,0,0,.8)';
+    title.style.color = '#ff8888';
+    sub.style.color = 'rgba(255,140,140,.7)';
+    box.style.background = 'linear-gradient(160deg,rgba(40,10,10,.98),rgba(14,14,22,.98))';
+  } else {
+    box.style.borderColor = 'rgba(41,128,185,.6)';
+    box.style.boxShadow = '0 0 50px rgba(41,128,185,.25),0 20px 60px rgba(0,0,0,.8)';
+    title.style.color = '#88c4ff';
+    sub.style.color = 'rgba(140,200,255,.7)';
+    box.style.background = 'linear-gradient(160deg,rgba(10,20,40,.98),rgba(14,14,22,.98))';
+  }
+  if (gameState) updateOverlaySpymasterAvailability(gameState);
+}
+function setOverlayRole(role) {
+  const smBtn = document.getElementById('ov-pick-sm');
+  if (role === 'spymaster' && smBtn && smBtn.disabled) return;
+  overlayRole = role;
+  document.getElementById('ov-pick-op').classList.toggle('active', role === 'operative');
+  if (smBtn) smBtn.classList.toggle('active', role === 'spymaster');
 }
 function updateOverlaySpymasterAvailability(s) {
-  const smBtn = document.querySelector('#overlay-role-seg .seg-btn[data-val="spymaster"]');
+  const smBtn = document.getElementById('ov-pick-sm');
+  const smLabel = document.getElementById('ov-sm-label');
   const roleNote = document.getElementById('overlay-role-note');
   if (!smBtn) return;
   const smKey = overlayTeam === 'red' ? 'redSpymasterId' : 'blueSpymasterId';
-  const slotTaken = (s[smKey] && s[smKey] !== pid) || s.phase === 'playing';
+  const slotTaken = s[smKey] && s[smKey] !== pid;
   smBtn.disabled = slotTaken;
-  smBtn.style.opacity = slotTaken ? '.35' : '';
-  if (roleNote) roleNote.style.display = s.phase === 'playing' ? '' : (slotTaken ? '' : 'none');
-  if (roleNote) roleNote.textContent = s.phase === 'playing'
-    ? '⚠️ Game in progress — only Operative available.'
-    : `⚠️ ${overlayTeam} spymaster slot is taken.`;
-  if (slotTaken && overlayRole === 'spymaster') {
-    overlayRole = 'operative';
-    setOverlaySeg('role', 'operative', document.querySelector('#overlay-role-seg .seg-btn[data-val="operative"]'));
+  if (smLabel) smLabel.textContent = slotTaken ? 'Slot taken' : 'Give the clues';
+  if (roleNote) {
+    roleNote.style.display = slotTaken ? '' : 'none';
+    roleNote.textContent = `⚠️ ${overlayTeam.charAt(0).toUpperCase()+overlayTeam.slice(1)} spymaster slot is already taken.`;
   }
+  if (slotTaken && overlayRole === 'spymaster') setOverlayRole('operative');
+}
+// legacy alias used by old seg buttons
+function setOverlaySeg(type, val, el) {
+  if (type === 'team') setOverlayTeam(val);
+  else setOverlayRole(val);
 }
 function overlayJoin() {
   const name = document.getElementById('overlay-name').value.trim();
