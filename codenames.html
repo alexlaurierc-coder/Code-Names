@@ -49,7 +49,7 @@ input[type=text]::placeholder{color:var(--muted)}
 /* ── LOBBY ── */
 #lobby{padding:2rem 1rem;background:radial-gradient(ellipse at 50% 0%,#12091f,var(--bg) 70%)}
 #lobby.active{align-items:stretch;justify-content:flex-start}
-.lobby-wrap{max-width:920px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:1.5rem}
+.lobby-wrap{max-width:960px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:1.5rem}
 .lobby-header{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
 .room-pill{background:var(--surface2);border:1px solid var(--border);border-radius:12px;
   padding:.6rem 1.2rem;font-size:1.3rem;font-weight:800;letter-spacing:.15em;
@@ -60,35 +60,65 @@ input[type=text]::placeholder{color:var(--muted)}
   background:#27ae60;color:#fff;padding:.6rem 1.4rem;border-radius:30px;font-weight:700;
   opacity:0;pointer-events:none;transition:all .3s;z-index:9999}
 .copy-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.lobby-main{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
-@media(max-width:620px){.lobby-main{grid-template-columns:1fr}}
-.panel{background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:1.5rem}
-.panel-h{font-size:.78rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);margin-bottom:1rem;font-weight:600}
-.team-panel{border-top:3px solid transparent}
-.team-panel.red{border-color:var(--red2)}
-.team-panel.blue{border-color:var(--blue2)}
-.player-row{display:flex;align-items:center;gap:.5rem;padding:.5rem .65rem;border-radius:8px;
-  background:var(--surface3);margin-bottom:.35rem}
-.player-row:last-child{margin-bottom:0}
-.role-badge{font-size:.7rem;padding:.2rem .5rem;border-radius:20px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.06em;flex-shrink:0}
-.role-badge.spymaster{background:rgba(240,192,64,.18);color:var(--gold);border:1px solid rgba(240,192,64,.3)}
-.role-badge.operative{background:rgba(120,120,160,.15);color:var(--muted);border:1px solid var(--border)}
-.player-name{flex:1;font-weight:600;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.you-tag{font-size:.68rem;color:var(--muted);font-weight:400}
+
+/* Drag-drop team layout */
+.lobby-teams{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+@media(max-width:620px){.lobby-teams{grid-template-columns:1fr}}
+.team-col{border-radius:16px;overflow:hidden;border:2px solid transparent;display:flex;flex-direction:column}
+.team-col.red{border-color:rgba(231,76,60,.4);background:rgba(192,57,43,.06)}
+.team-col.blue{border-color:rgba(41,128,185,.4);background:rgba(26,82,118,.07)}
+.team-col-header{padding:.75rem 1rem;font-size:1rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:.5rem}
+.team-col-header.red{background:linear-gradient(135deg,rgba(127,29,29,.6),rgba(192,57,43,.4));color:#ff9090;border-bottom:1px solid rgba(231,76,60,.25)}
+.team-col-header.blue{background:linear-gradient(135deg,rgba(30,58,95,.6),rgba(26,82,118,.4));color:#90c4ff;border-bottom:1px solid rgba(41,128,185,.25)}
+.team-col-body{padding:.75rem;display:flex;flex-direction:column;gap:.65rem;flex:1}
+.role-zone{border-radius:10px;padding:.6rem;min-height:72px;transition:all .2s;border:2px dashed transparent}
+.role-zone.sm-zone{border-color:rgba(240,192,64,.25);background:rgba(240,192,64,.05)}
+.role-zone.op-zone{border-color:rgba(120,120,160,.2);background:rgba(80,80,120,.06)}
+.role-zone.drag-over{border-color:var(--gold)!important;background:rgba(240,192,64,.12)!important;box-shadow:0 0 16px rgba(240,192,64,.2)}
+.role-zone-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;font-weight:700;
+  color:var(--muted);margin-bottom:.45rem;display:flex;align-items:center;gap:.35rem}
+.player-card{display:flex;align-items:center;gap:.5rem;padding:.45rem .6rem;border-radius:8px;
+  background:var(--surface2);border:1px solid var(--border);margin-bottom:.3rem;
+  cursor:grab;user-select:none;transition:all .18s}
+.player-card:active{cursor:grabbing}
+.player-card.dragging{opacity:.4}
+.player-card.is-me{border-color:rgba(91,79,207,.5);background:rgba(91,79,207,.08)}
+.player-card:last-child{margin-bottom:0}
+.pc-name{flex:1;font-weight:700;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pc-you{font-size:.65rem;color:var(--muted);font-weight:400}
 .kick-btn{background:rgba(192,57,43,.2);border:1px solid rgba(192,57,43,.35);color:#e74c3c;
   border-radius:6px;padding:.22rem .55rem;font-size:.72rem;cursor:pointer;transition:all .18s;flex-shrink:0}
 .kick-btn:hover{background:rgba(192,57,43,.4)}
-/* Host drag controls */
-.move-btn{background:rgba(80,80,160,.2);border:1px solid rgba(80,80,160,.35);color:#a0a0e0;
-  border-radius:6px;padding:.22rem .5rem;font-size:.7rem;cursor:pointer;transition:all .18s;flex-shrink:0}
-.move-btn:hover{background:rgba(80,80,160,.4);color:#c0c0ff}
+.drop-hint{font-size:.75rem;color:var(--muted);padding:.3rem .4rem;font-style:italic;opacity:.7}
+
+/* Color-first join panel */
+.panel{background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:1.5rem}
+.panel-h{font-size:.78rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);margin-bottom:1rem;font-weight:600}
+.team-pick{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.85rem}
+.team-pick-btn{padding:1rem;border-radius:12px;border:2px solid transparent;cursor:pointer;
+  font-size:1rem;font-weight:800;letter-spacing:.05em;transition:all .2s;text-align:center;
+  background:var(--surface3)}
+.team-pick-btn.red-pick{border-color:rgba(231,76,60,.3);color:#ff8888}
+.team-pick-btn.red-pick:hover,.team-pick-btn.red-pick.active{
+  background:linear-gradient(135deg,rgba(127,29,29,.6),rgba(192,57,43,.5));
+  border-color:var(--red2);color:#fff;box-shadow:0 4px 20px var(--red-glow)}
+.team-pick-btn.blue-pick{border-color:rgba(41,128,185,.3);color:#88c4ff}
+.team-pick-btn.blue-pick:hover,.team-pick-btn.blue-pick.active{
+  background:linear-gradient(135deg,rgba(30,58,95,.7),rgba(26,82,118,.6));
+  border-color:var(--blue2);color:#fff;box-shadow:0 4px 20px var(--blue-glow)}
+.role-pick{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.85rem}
+.role-pick-btn{padding:.85rem;border-radius:12px;border:2px solid transparent;cursor:pointer;
+  font-size:.9rem;font-weight:700;transition:all .2s;text-align:center;background:var(--surface3);color:var(--muted)}
+.role-pick-btn:hover:not(:disabled),.role-pick-btn.active{background:var(--surface3);border-color:#5050a0;color:var(--text)}
+.role-pick-btn:disabled{opacity:.35;cursor:not-allowed}
+.role-pick-btn .role-sub{font-size:.68rem;font-weight:400;color:var(--muted);display:block;margin-top:.2rem}
+.role-pick-btn.active .role-sub{color:rgba(255,255,255,.6)}
 .seg{display:flex;border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .seg-btn{flex:1;padding:.65rem;background:transparent;border:none;color:var(--muted);
   cursor:pointer;font-size:.9rem;font-weight:600;transition:all .2s}
 .seg-btn.active{background:var(--surface3);color:var(--text)}
-.seg-btn:hover:not(.active){background:rgba(255,255,255,.04)}
-.lobby-join-form{display:flex;flex-direction:column;gap:.75rem}
+.seg-btn:hover:not(.active):not(:disabled){background:rgba(255,255,255,.04)}
+.seg-btn:disabled{opacity:.35;cursor:not-allowed}
 .lobby-actions{display:flex;gap:.75rem;flex-wrap:wrap}
 .lobby-actions .btn{flex:1;min-width:120px}
 
@@ -242,7 +272,7 @@ input[type=text]::placeholder{color:var(--muted)}
 <!-- HOME -->
 <div id="home" class="screen active">
   <div class="logo">CODENAMES</div>
-  <div class="logo-sub">Multiplayer Word Game</div>
+  <div class="logo-sub">Powered by Oatzu</div>
   <div class="home-cards">
     <div class="home-card">
       <h2>Host a Room</h2>
@@ -271,37 +301,37 @@ input[type=text]::placeholder{color:var(--muted)}
       <button class="btn btn-ghost btn-sm" onclick="leaveRoom()">Leave</button>
     </div>
 
-    <div class="lobby-main">
-      <div class="panel team-panel red">
-        <div class="panel-h">Red Team</div>
-        <div id="red-players"></div>
-      </div>
-      <div class="panel team-panel blue">
-        <div class="panel-h">Blue Team</div>
-        <div id="blue-players"></div>
-      </div>
+    <!-- Drag-drop team zones -->
+    <div class="lobby-teams" id="lobby-teams">
+      <!-- Rendered by JS -->
     </div>
 
     <!-- Join/role selection -->
     <div class="panel" id="join-panel">
       <div class="panel-h">Pick Your Team &amp; Role</div>
-      <div class="lobby-join-form">
-        <div>
-          <div style="font-size:.75rem;color:var(--muted);margin-bottom:.4rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase">Team</div>
-          <div class="seg" id="team-seg">
-            <button class="seg-btn active" data-val="red" onclick="setSeg('team','red',this)">🔴 Red</button>
-            <button class="seg-btn" data-val="blue" onclick="setSeg('team','blue',this)">🔵 Blue</button>
-          </div>
-        </div>
-        <div>
-          <div style="font-size:.75rem;color:var(--muted);margin-bottom:.4rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase">Role</div>
-          <div class="seg" id="role-seg">
-            <button class="seg-btn active" data-val="operative" onclick="setSeg('role','operative',this)">🕵️ Operative</button>
-            <button class="seg-btn" data-val="spymaster" onclick="setSeg('role','spymaster',this)">👁 Spymaster</button>
-          </div>
-        </div>
-        <button class="btn btn-primary" onclick="sendJoin()">Confirm Selection</button>
+      <!-- Step 1: Team -->
+      <div style="font-size:.72rem;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem">1. Choose Team</div>
+      <div class="team-pick">
+        <button class="team-pick-btn red-pick active" id="pick-red" onclick="pickTeam('red')">
+          🔴 Red Team
+        </button>
+        <button class="team-pick-btn blue-pick" id="pick-blue" onclick="pickTeam('blue')">
+          🔵 Blue Team
+        </button>
       </div>
+      <!-- Step 2: Role -->
+      <div style="font-size:.72rem;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem">2. Choose Role</div>
+      <div class="role-pick">
+        <button class="role-pick-btn active" id="pick-operative" onclick="pickRole('operative')">
+          🕵️ Operative
+          <span class="role-sub">Guess the words</span>
+        </button>
+        <button class="role-pick-btn" id="pick-spymaster" onclick="pickRole('spymaster')">
+          👁 Spymaster
+          <span class="role-sub" id="sm-slot-label">Give the clues</span>
+        </button>
+      </div>
+      <button class="btn btn-primary" onclick="sendJoin()" style="width:100%">Confirm Selection</button>
     </div>
 
     <div class="lobby-actions">
@@ -520,49 +550,117 @@ function renderLobby(s) {
   document.getElementById('lobby-code').textContent = roomCode || '------';
   document.getElementById('lobby-host-label').textContent = s.isHost ? 'You are the host' : '';
 
-  const redDiv = document.getElementById('red-players');
-  const blueDiv = document.getElementById('blue-players');
-  redDiv.innerHTML = ''; blueDiv.innerHTML = '';
+  const teamsEl = document.getElementById('lobby-teams');
+  teamsEl.innerHTML = '';
 
-  for (const p of s.players) {
-    const div = document.createElement('div');
-    div.className = 'player-row';
-    const roleEl = p.role === 'spymaster'
-      ? '<span class="role-badge spymaster">Spymaster</span>'
-      : '<span class="role-badge operative">Operative</span>';
-    const youEl = p.id === pid ? ' <span class="you-tag">(you)</span>' : '';
-    let hostCtrl = '';
-    if (s.isHost && p.id !== pid) {
-      const otherTeam = p.team === 'red' ? 'blue' : 'red';
-      const otherRole = p.role === 'operative' ? 'spymaster' : 'operative';
-      hostCtrl = `
-        <button class="move-btn" onclick="movePlayer('${p.id}','${otherTeam}','${p.role}')" title="Switch team">⇄ Team</button>
-        <button class="move-btn" onclick="movePlayer('${p.id}','${p.team}','${otherRole}')" title="Switch role">⇄ Role</button>
-        <button class="kick-btn" onclick="kickPlayer('${p.id}')">Kick</button>`;
+  for (const team of ['red', 'blue']) {
+    const smId = team === 'red' ? s.redSpymasterId : s.blueSpymasterId;
+    const col = document.createElement('div');
+    col.className = `team-col ${team}`;
+
+    const header = document.createElement('div');
+    header.className = `team-col-header ${team}`;
+    header.innerHTML = (team === 'red' ? '🔴' : '🔵') + ' ' + (team === 'red' ? 'Red Team' : 'Blue Team');
+    col.appendChild(header);
+
+    const body = document.createElement('div');
+    body.className = 'team-col-body';
+
+    // Spymaster zone
+    const smZone = makeDropZone(team, 'spymaster', s.isHost);
+    const smLabel = document.createElement('div');
+    smLabel.className = 'role-zone-label';
+    smLabel.innerHTML = '👁 Spymaster';
+    smZone.appendChild(smLabel);
+    const smPlayers = s.players.filter(p => p.team === team && p.role === 'spymaster');
+    if (smPlayers.length) {
+      smPlayers.forEach(p => smZone.appendChild(makePlayerCard(p, s.isHost)));
+    } else {
+      const hint = document.createElement('div');
+      hint.className = 'drop-hint';
+      hint.textContent = s.isHost ? 'Drag a player here' : 'No spymaster yet';
+      smZone.appendChild(hint);
     }
-    div.innerHTML = `<span class="player-name">${esc(p.name)}${youEl}</span>${roleEl}${hostCtrl}`;
-    (p.team === 'red' ? redDiv : blueDiv).appendChild(div);
+    body.appendChild(smZone);
+
+    // Operative zone
+    const opZone = makeDropZone(team, 'operative', s.isHost);
+    const opLabel = document.createElement('div');
+    opLabel.className = 'role-zone-label';
+    opLabel.innerHTML = '🕵️ Operatives';
+    opZone.appendChild(opLabel);
+    const opPlayers = s.players.filter(p => p.team === team && p.role === 'operative');
+    if (opPlayers.length) {
+      opPlayers.forEach(p => opZone.appendChild(makePlayerCard(p, s.isHost)));
+    } else {
+      const hint = document.createElement('div');
+      hint.className = 'drop-hint';
+      hint.textContent = s.isHost ? 'Drag a player here' : 'No operatives yet';
+      opZone.appendChild(hint);
+    }
+    body.appendChild(opZone);
+
+    col.appendChild(body);
+    teamsEl.appendChild(col);
   }
 
   document.getElementById('start-btn').style.display = s.isHost ? '' : 'none';
   document.getElementById('reset-btn').style.display = s.isHost ? '' : 'none';
 
-  // Update spymaster button availability based on chosen team
-  updateSpymasterAvailability(s);
+  updateJoinPanelAvailability(s);
 }
 
-function updateSpymasterAvailability(s) {
-  const smBtn = document.querySelector('#role-seg .seg-btn[data-val="spymaster"]');
+function makeDropZone(team, role, isHost) {
+  const zone = document.createElement('div');
+  zone.className = `role-zone ${role === 'spymaster' ? 'sm-zone' : 'op-zone'}`;
+  if (isHost) {
+    zone.ondragover = e => { e.preventDefault(); zone.classList.add('drag-over'); };
+    zone.ondragleave = () => zone.classList.remove('drag-over');
+    zone.ondrop = e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      const playerId = e.dataTransfer.getData('playerId');
+      if (playerId) movePlayer(playerId, team, role);
+    };
+  }
+  return zone;
+}
+
+function makePlayerCard(p, isHost) {
+  const card = document.createElement('div');
+  card.className = 'player-card' + (p.id === pid ? ' is-me' : '');
+  card.draggable = isHost || p.id === pid; // host can drag anyone; players can drag themselves
+  card.ondragstart = e => {
+    e.dataTransfer.setData('playerId', p.id);
+    setTimeout(() => card.classList.add('dragging'), 0);
+  };
+  card.ondragend = () => card.classList.remove('dragging');
+
+  const nameEl = document.createElement('span');
+  nameEl.className = 'pc-name';
+  nameEl.innerHTML = esc(p.name) + (p.id === pid ? ' <span class="pc-you">(you)</span>' : '');
+  card.appendChild(nameEl);
+
+  if (isHost && p.id !== pid) {
+    const kb = document.createElement('button');
+    kb.className = 'kick-btn';
+    kb.textContent = 'Kick';
+    kb.onclick = e => { e.stopPropagation(); kickPlayer(p.id); };
+    card.appendChild(kb);
+  }
+  return card;
+}
+
+function updateJoinPanelAvailability(s) {
+  // Update spymaster button availability
+  const smBtn = document.getElementById('pick-spymaster');
+  const smLabel = document.getElementById('sm-slot-label');
   if (!smBtn) return;
   const smKey = chosenTeam === 'red' ? 'redSpymasterId' : 'blueSpymasterId';
   const slotTaken = s[smKey] && s[smKey] !== pid;
   smBtn.disabled = slotTaken;
-  smBtn.style.opacity = slotTaken ? '.35' : '';
-  smBtn.title = slotTaken ? `${chosenTeam} spymaster slot is taken` : '';
-  // If slot just got taken and we had spymaster selected, switch back to operative
-  if (slotTaken && chosenRole === 'spymaster') {
-    setSeg('role', 'operative', document.querySelector('#role-seg .seg-btn[data-val="operative"]'));
-  }
+  if (smLabel) smLabel.textContent = slotTaken ? 'Slot taken' : 'Give the clues';
+  if (slotTaken && chosenRole === 'spymaster') pickRole('operative');
 }
 
 // ===== GAME RENDER =====
@@ -784,22 +882,9 @@ function showJoinOverlay(midGame) {
   document.getElementById('join-overlay-sub').textContent = midGame
     ? 'The game is in progress — join as an operative'
     : 'Pick your team and role to play';
-  // Mid-game: hide spymaster option, force operative
-  const roleWrap = document.getElementById('overlay-role-wrap');
-  const roleNote = document.getElementById('overlay-role-note');
-  if (midGame) {
-    overlayRole = 'operative';
-    setOverlaySeg('role', 'operative', document.querySelector('#overlay-role-seg .seg-btn[data-val="operative"]'));
-    document.querySelector('#overlay-role-seg .seg-btn[data-val="spymaster"]').disabled = true;
-    document.querySelector('#overlay-role-seg .seg-btn[data-val="spymaster"]').style.opacity = '.35';
-    roleNote.style.display = '';
-  } else {
-    document.querySelector('#overlay-role-seg .seg-btn[data-val="spymaster"]').disabled = false;
-    document.querySelector('#overlay-role-seg .seg-btn[data-val="spymaster"]').style.opacity = '';
-    roleNote.style.display = 'none';
-  }
-  // Pre-fill name if known
   if (myName) document.getElementById('overlay-name').value = myName;
+  // Check slot availability with real state
+  if (gameState) updateOverlaySpymasterAvailability(gameState);
   setTimeout(() => document.getElementById('overlay-name').focus(), 50);
 }
 function hideJoinOverlay() {
@@ -809,6 +894,25 @@ function setOverlaySeg(type, val, el) {
   if (!el) return;
   if (type === 'team') overlayTeam = val; else overlayRole = val;
   document.querySelectorAll(`#overlay-${type}-seg .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.val === val));
+  // Re-check spymaster when team changes in overlay
+  if (type === 'team' && gameState) updateOverlaySpymasterAvailability(gameState);
+}
+function updateOverlaySpymasterAvailability(s) {
+  const smBtn = document.querySelector('#overlay-role-seg .seg-btn[data-val="spymaster"]');
+  const roleNote = document.getElementById('overlay-role-note');
+  if (!smBtn) return;
+  const smKey = overlayTeam === 'red' ? 'redSpymasterId' : 'blueSpymasterId';
+  const slotTaken = (s[smKey] && s[smKey] !== pid) || s.phase === 'playing';
+  smBtn.disabled = slotTaken;
+  smBtn.style.opacity = slotTaken ? '.35' : '';
+  if (roleNote) roleNote.style.display = s.phase === 'playing' ? '' : (slotTaken ? '' : 'none');
+  if (roleNote) roleNote.textContent = s.phase === 'playing'
+    ? '⚠️ Game in progress — only Operative available.'
+    : `⚠️ ${overlayTeam} spymaster slot is taken.`;
+  if (slotTaken && overlayRole === 'spymaster') {
+    overlayRole = 'operative';
+    setOverlaySeg('role', 'operative', document.querySelector('#overlay-role-seg .seg-btn[data-val="operative"]'));
+  }
 }
 function overlayJoin() {
   const name = document.getElementById('overlay-name').value.trim();
@@ -820,12 +924,24 @@ function overlayJoin() {
   send({ type: 'join', name, team: overlayTeam, role: overlayRole });
 }
 
-// ===== SEG =====
+// ===== TEAM / ROLE PICK =====
+function pickTeam(team) {
+  chosenTeam = team;
+  document.getElementById('pick-red').classList.toggle('active', team === 'red');
+  document.getElementById('pick-blue').classList.toggle('active', team === 'blue');
+  if (gameState) updateJoinPanelAvailability(gameState);
+}
+function pickRole(role) {
+  const smBtn = document.getElementById('pick-spymaster');
+  if (role === 'spymaster' && smBtn && smBtn.disabled) return;
+  chosenRole = role;
+  document.getElementById('pick-operative').classList.toggle('active', role === 'operative');
+  document.getElementById('pick-spymaster').classList.toggle('active', role === 'spymaster');
+}
+// Legacy seg used by overlay
 function setSeg(type, val, el) {
-  if (type === 'team') chosenTeam = val; else chosenRole = val;
-  document.querySelectorAll(`#${type}-seg .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.val === val));
-  // Re-check spymaster availability when team changes
-  if (type === 'team' && gameState) updateSpymasterAvailability(gameState);
+  if (type === 'team') { overlayTeam = val; } else { overlayRole = val; }
+  if (el) document.querySelectorAll(`#overlay-${type}-seg .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.val === val));
 }
 
 // ===== COPY INVITE =====
