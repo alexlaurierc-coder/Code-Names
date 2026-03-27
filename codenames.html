@@ -98,11 +98,17 @@ input[type=text]::placeholder{color:var(--muted)}
 .game-wrap{max-width:1100px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:1rem}
 .game-header{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;padding:.75rem 1rem;
   background:var(--surface2);border:1px solid var(--border);border-radius:14px}
-.score-orbs{display:flex;gap:.75rem;align-items:center}
-.orb{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:1.1rem;font-weight:900;border:2px solid transparent;flex-shrink:0}
-.orb.red{background:linear-gradient(135deg,#7f1d1d,var(--red));border-color:var(--red2);box-shadow:0 0 14px var(--red-glow);color:#fff}
-.orb.blue{background:linear-gradient(135deg,#1e3a5f,var(--blue));border-color:var(--blue2);box-shadow:0 0 14px var(--blue-glow);color:#fff}
+.score-display{display:flex;gap:.5rem;align-items:center}
+.score-team{display:flex;align-items:baseline;gap:.4rem;padding:.35rem .85rem;border-radius:10px;border:1px solid transparent}
+.score-team.red{background:rgba(192,57,43,.12);border-color:rgba(231,76,60,.3)}
+.score-team.blue{background:rgba(26,82,118,.15);border-color:rgba(41,128,185,.3)}
+.score-label{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.score-label.red{background:linear-gradient(135deg,#ff6b6b,#e74c3c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.score-label.blue{background:linear-gradient(135deg,#5dade2,#2980b9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.score-num{font-size:1.3rem;font-weight:900;line-height:1}
+.score-num.red{background:linear-gradient(135deg,#ff8888,#e74c3c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.score-num.blue{background:linear-gradient(135deg,#88ccff,#2980b9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.score-divider{color:var(--border);font-size:1.1rem;font-weight:300}
 .turn-indicator{flex:1;display:flex;align-items:center;justify-content:center;gap:.6rem;font-size:1rem;font-weight:700}
 .turn-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
 .turn-dot.red{background:var(--red2);box-shadow:0 0 8px var(--red-glow)}
@@ -309,9 +315,16 @@ input[type=text]::placeholder{color:var(--muted)}
 <div id="game" class="screen">
   <div class="game-wrap">
     <div class="game-header">
-      <div class="score-orbs">
-        <div class="orb red" id="score-red">9</div>
-        <div class="orb blue" id="score-blue">8</div>
+      <div class="score-display">
+        <div class="score-team red">
+          <span class="score-label red">Red</span>
+          <span class="score-num red" id="score-red">9</span>
+        </div>
+        <span class="score-divider">|</span>
+        <div class="score-team blue">
+          <span class="score-label blue">Blue</span>
+          <span class="score-num blue" id="score-blue">8</span>
+        </div>
       </div>
       <div class="turn-indicator">
         <div class="turn-dot" id="turn-dot"></div>
@@ -518,7 +531,6 @@ function renderLobby(s) {
       ? '<span class="role-badge spymaster">Spymaster</span>'
       : '<span class="role-badge operative">Operative</span>';
     const youEl = p.id === pid ? ' <span class="you-tag">(you)</span>' : '';
-    // Host controls: move team, move role, kick
     let hostCtrl = '';
     if (s.isHost && p.id !== pid) {
       const otherTeam = p.team === 'red' ? 'blue' : 'red';
@@ -534,6 +546,23 @@ function renderLobby(s) {
 
   document.getElementById('start-btn').style.display = s.isHost ? '' : 'none';
   document.getElementById('reset-btn').style.display = s.isHost ? '' : 'none';
+
+  // Update spymaster button availability based on chosen team
+  updateSpymasterAvailability(s);
+}
+
+function updateSpymasterAvailability(s) {
+  const smBtn = document.querySelector('#role-seg .seg-btn[data-val="spymaster"]');
+  if (!smBtn) return;
+  const smKey = chosenTeam === 'red' ? 'redSpymasterId' : 'blueSpymasterId';
+  const slotTaken = s[smKey] && s[smKey] !== pid;
+  smBtn.disabled = slotTaken;
+  smBtn.style.opacity = slotTaken ? '.35' : '';
+  smBtn.title = slotTaken ? `${chosenTeam} spymaster slot is taken` : '';
+  // If slot just got taken and we had spymaster selected, switch back to operative
+  if (slotTaken && chosenRole === 'spymaster') {
+    setSeg('role', 'operative', document.querySelector('#role-seg .seg-btn[data-val="operative"]'));
+  }
 }
 
 // ===== GAME RENDER =====
@@ -679,8 +708,13 @@ function renderGamePlayers(s) {
     for (const p of tps) {
       const row = document.createElement('div'); row.className = 'gp-row' + (p.team === s.turn ? ' active-team' : '');
       const rc = p.team === 'red' ? (p.role === 'spymaster' ? 'r-sm' : 'r-op') : (p.role === 'spymaster' ? 'b-sm' : 'b-op');
-      const kickEl = s.isHost && p.id !== pid ? `<button class="kick-btn" style="font-size:.65rem;padding:.15rem .4rem" onclick="kickPlayer('${p.id}')">✕</button>` : '';
-      row.innerHTML = `<span class="gp-name">${esc(p.name)}${p.id === pid ? ' <span style="color:var(--muted);font-size:.65rem">(you)</span>' : ''}</span><span class="gp-role ${rc}">${p.role === 'spymaster' ? '👁 SM' : '🕵️'}</span>${kickEl}`;
+      const otherTeam = p.team === 'red' ? 'blue' : 'red';
+      const otherRole = p.role === 'operative' ? 'spymaster' : 'operative';
+      const hostCtrl = s.isHost && p.id !== pid ? `
+        <button class="move-btn" style="font-size:.62rem;padding:.15rem .4rem" onclick="movePlayer('${p.id}','${otherTeam}','${p.role}')" title="Switch team">⇄T</button>
+        <button class="move-btn" style="font-size:.62rem;padding:.15rem .4rem" onclick="movePlayer('${p.id}','${p.team}','${otherRole}')" title="Switch role">⇄R</button>
+        <button class="kick-btn" style="font-size:.65rem;padding:.15rem .4rem" onclick="kickPlayer('${p.id}')">✕</button>` : '';
+      row.innerHTML = `<span class="gp-name">${esc(p.name)}${p.id === pid ? ' <span style="color:var(--muted);font-size:.65rem">(you)</span>' : ''}</span><span class="gp-role ${rc}">${p.role === 'spymaster' ? '👁 SM' : '🕵️'}</span>${hostCtrl}`;
       list.appendChild(row);
     }
     const sp = document.createElement('div'); sp.style.height = '.4rem'; list.appendChild(sp);
@@ -790,6 +824,8 @@ function overlayJoin() {
 function setSeg(type, val, el) {
   if (type === 'team') chosenTeam = val; else chosenRole = val;
   document.querySelectorAll(`#${type}-seg .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.val === val));
+  // Re-check spymaster availability when team changes
+  if (type === 'team' && gameState) updateSpymasterAvailability(gameState);
 }
 
 // ===== COPY INVITE =====
