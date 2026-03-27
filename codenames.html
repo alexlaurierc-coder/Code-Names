@@ -15,7 +15,6 @@
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden}
 
-/* ── SCREENS ── */
 .screen{display:none;min-height:100vh}
 .screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center}
 
@@ -38,13 +37,8 @@ input[type=text]:focus{border-color:#5050a0}
 input[type=text]::placeholder{color:var(--muted)}
 .btn{border:none;border-radius:10px;padding:.75rem 1.5rem;font-size:1rem;font-weight:700;
   cursor:pointer;transition:all .18s;letter-spacing:.03em}
-.btn-primary{background:linear-gradient(135deg,#5b4fcf,#8b5cf6);color:#fff;
-  box-shadow:0 4px 18px rgba(91,79,207,.4)}
+.btn-primary{background:linear-gradient(135deg,#5b4fcf,#8b5cf6);color:#fff;box-shadow:0 4px 18px rgba(91,79,207,.4)}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(91,79,207,.55)}
-.btn-red{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;box-shadow:0 4px 18px var(--red-glow)}
-.btn-red:hover{transform:translateY(-2px)}
-.btn-blue{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;box-shadow:0 4px 18px var(--blue-glow)}
-.btn-blue:hover{transform:translateY(-2px)}
 .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
 .btn-ghost:hover{border-color:#5050a0;color:var(--text);background:var(--surface3)}
 .btn-danger{background:linear-gradient(135deg,#7f1d1d,#c0392b);color:#fff}
@@ -55,11 +49,11 @@ input[type=text]::placeholder{color:var(--muted)}
 /* ── LOBBY ── */
 #lobby{padding:2rem 1rem;background:radial-gradient(ellipse at 50% 0%,#12091f,var(--bg) 70%)}
 #lobby.active{align-items:stretch;justify-content:flex-start}
-.lobby-wrap{max-width:900px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:1.5rem}
+.lobby-wrap{max-width:920px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:1.5rem}
 .lobby-header{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
 .room-pill{background:var(--surface2);border:1px solid var(--border);border-radius:12px;
   padding:.6rem 1.2rem;font-size:1.3rem;font-weight:800;letter-spacing:.15em;
-  cursor:pointer;transition:all .2s;user-select:all;color:var(--gold)}
+  cursor:pointer;transition:all .2s;color:var(--gold)}
 .room-pill:hover{background:var(--surface3);border-color:var(--gold);box-shadow:0 0 20px rgba(240,192,64,.25)}
 .room-pill .copy-hint{font-size:.65rem;font-weight:400;letter-spacing:.05em;color:var(--muted);display:block;margin-top:1px}
 .copy-toast{position:fixed;top:1.5rem;left:50%;transform:translateX(-50%) translateY(-10px);
@@ -67,24 +61,28 @@ input[type=text]::placeholder{color:var(--muted)}
   opacity:0;pointer-events:none;transition:all .3s;z-index:9999}
 .copy-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .lobby-main{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
-@media(max-width:600px){.lobby-main{grid-template-columns:1fr}}
+@media(max-width:620px){.lobby-main{grid-template-columns:1fr}}
 .panel{background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:1.5rem}
-.panel h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);margin-bottom:1rem;font-weight:600}
+.panel-h{font-size:.78rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);margin-bottom:1rem;font-weight:600}
 .team-panel{border-top:3px solid transparent}
 .team-panel.red{border-color:var(--red2)}
 .team-panel.blue{border-color:var(--blue2)}
-.player-row{display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;border-radius:8px;
-  background:var(--surface3);margin-bottom:.4rem}
+.player-row{display:flex;align-items:center;gap:.5rem;padding:.5rem .65rem;border-radius:8px;
+  background:var(--surface3);margin-bottom:.35rem}
 .player-row:last-child{margin-bottom:0}
-.role-badge{font-size:.7rem;padding:.2rem .55rem;border-radius:20px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.06em}
+.role-badge{font-size:.7rem;padding:.2rem .5rem;border-radius:20px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;flex-shrink:0}
 .role-badge.spymaster{background:rgba(240,192,64,.18);color:var(--gold);border:1px solid rgba(240,192,64,.3)}
 .role-badge.operative{background:rgba(120,120,160,.15);color:var(--muted);border:1px solid var(--border)}
-.player-name{flex:1;font-weight:600;font-size:.9rem}
-.you-tag{font-size:.7rem;color:var(--muted);font-weight:400}
+.player-name{flex:1;font-weight:600;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.you-tag{font-size:.68rem;color:var(--muted);font-weight:400}
 .kick-btn{background:rgba(192,57,43,.2);border:1px solid rgba(192,57,43,.35);color:#e74c3c;
-  border-radius:6px;padding:.25rem .6rem;font-size:.75rem;cursor:pointer;transition:all .18s}
+  border-radius:6px;padding:.22rem .55rem;font-size:.72rem;cursor:pointer;transition:all .18s;flex-shrink:0}
 .kick-btn:hover{background:rgba(192,57,43,.4)}
+/* Host drag controls */
+.move-btn{background:rgba(80,80,160,.2);border:1px solid rgba(80,80,160,.35);color:#a0a0e0;
+  border-radius:6px;padding:.22rem .5rem;font-size:.7rem;cursor:pointer;transition:all .18s;flex-shrink:0}
+.move-btn:hover{background:rgba(80,80,160,.4);color:#c0c0ff}
 .seg{display:flex;border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .seg-btn{flex:1;padding:.65rem;background:transparent;border:none;color:var(--muted);
   cursor:pointer;font-size:.9rem;font-weight:600;transition:all .2s}
@@ -103,12 +101,9 @@ input[type=text]::placeholder{color:var(--muted)}
 .score-orbs{display:flex;gap:.75rem;align-items:center}
 .orb{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-size:1.1rem;font-weight:900;border:2px solid transparent;flex-shrink:0}
-.orb.red{background:linear-gradient(135deg,#7f1d1d,var(--red));border-color:var(--red2);
-  box-shadow:0 0 14px var(--red-glow);color:#fff}
-.orb.blue{background:linear-gradient(135deg,#1e3a5f,var(--blue));border-color:var(--blue2);
-  box-shadow:0 0 14px var(--blue-glow);color:#fff}
-.turn-indicator{flex:1;display:flex;align-items:center;justify-content:center;gap:.6rem;
-  font-size:1rem;font-weight:700;letter-spacing:.03em}
+.orb.red{background:linear-gradient(135deg,#7f1d1d,var(--red));border-color:var(--red2);box-shadow:0 0 14px var(--red-glow);color:#fff}
+.orb.blue{background:linear-gradient(135deg,#1e3a5f,var(--blue));border-color:var(--blue2);box-shadow:0 0 14px var(--blue-glow);color:#fff}
+.turn-indicator{flex:1;display:flex;align-items:center;justify-content:center;gap:.6rem;font-size:1rem;font-weight:700}
 .turn-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
 .turn-dot.red{background:var(--red2);box-shadow:0 0 8px var(--red-glow)}
 .turn-dot.blue{background:var(--blue2);box-shadow:0 0 8px var(--blue-glow)}
@@ -124,8 +119,7 @@ input[type=text]::placeholder{color:var(--muted)}
 .clue-word.red{color:var(--red2)}
 .clue-word.blue{color:var(--blue2)}
 .clue-num{background:var(--surface3);border:2px solid var(--border);border-radius:50%;
-  width:38px;height:38px;display:flex;align-items:center;justify-content:center;
-  font-size:1rem;font-weight:900;flex-shrink:0}
+  width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;flex-shrink:0}
 .clue-hint{color:var(--muted);font-size:.9rem;font-style:italic}
 .guesses-left{color:var(--gold);font-weight:700;font-size:.9rem;white-space:nowrap}
 .clue-form{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;flex:1}
@@ -149,33 +143,31 @@ input[type=text]::placeholder{color:var(--muted)}
 .card-word{font-size:clamp(.58rem,1.75vw,.95rem);font-weight:800;letter-spacing:.06em;
   text-transform:uppercase;text-align:center;padding:.4rem;
   text-shadow:0 1px 3px rgba(0,0,0,.5);position:relative;z-index:2;line-height:1.2}
-
-/* Revealed colors */
+/* Revealed */
 .card.rev-red{background:linear-gradient(135deg,#7f1d1d 0%,#991b1b 40%,#c0392b 100%);
   border-color:#e74c3c;box-shadow:0 0 20px rgba(231,76,60,.4);color:#fff}
 .card.rev-blue{background:linear-gradient(135deg,#1e3a5f 0%,#1a4a7a 40%,#2471a3 100%);
   border-color:#2980b9;box-shadow:0 0 20px rgba(41,128,185,.4);color:#fff}
-.card.rev-neutral{background:linear-gradient(135deg,#3d3020 0%,#5a4a2a 40%,#7a6040 100%);
-  border-color:#a08050;color:#d4b483}
+.card.rev-neutral{background:linear-gradient(135deg,#4a3520 0%,#6b5030 40%,#8a6840 100%);
+  border-color:#c8a060;color:#e8c880}
 .card.rev-assassin{background:linear-gradient(135deg,#0a0a0a 0%,#1a1a1a 40%,#2a2a2a 100%);
   border-color:#444;box-shadow:0 0 24px rgba(0,0,0,.8);color:#888}
-
-/* Spymaster color hints */
+/* Spymaster hints */
 .card.hint-red{border-color:rgba(231,76,60,.7)!important;box-shadow:inset 0 0 0 2000px rgba(192,57,43,.16),0 0 12px var(--red-glow)!important}
 .card.hint-red .card-word{color:#ff8888}
 .card.hint-blue{border-color:rgba(41,128,185,.7)!important;box-shadow:inset 0 0 0 2000px rgba(26,82,118,.2),0 0 12px var(--blue-glow)!important}
 .card.hint-blue .card-word{color:#88c4ff}
 .card.hint-assassin{border-color:#444!important;box-shadow:inset 0 0 0 2000px rgba(0,0,0,.35)!important}
 .card.hint-assassin .card-word{color:#888}
-.card.hint-neutral{border-color:rgba(160,128,80,.4)!important;box-shadow:inset 0 0 0 2000px rgba(90,74,42,.12)!important}
+.card.hint-neutral{border-color:rgba(180,140,80,.45)!important;
+  box-shadow:inset 0 0 0 2000px rgba(110,80,35,.18)!important}
+.card.hint-neutral .card-word{color:#d4aa70}
 
-/* Think / Vote overlays */
+/* Think zone + vote btn */
 .card-think-zone{position:absolute;top:4px;left:4px;display:flex;flex-wrap:wrap;gap:2px;z-index:10;max-width:55%}
-.think-chip{font-size:.9rem;line-height:1;cursor:default;position:relative;
-  background:rgba(0,0,0,.6);border-radius:50%;padding:3px}
-.think-tooltip{position:absolute;top:calc(100% + 5px);left:0;
-  background:#1a1a2e;border:1px solid var(--border);border-radius:7px;
-  padding:.3rem .65rem;font-size:.72rem;white-space:nowrap;color:var(--text);
+.think-chip{font-size:.9rem;cursor:default;position:relative;background:rgba(0,0,0,.6);border-radius:50%;padding:3px;line-height:1}
+.think-tooltip{position:absolute;top:calc(100% + 5px);left:0;background:#1a1a2e;border:1px solid var(--border);
+  border-radius:7px;padding:.3rem .65rem;font-size:.72rem;white-space:nowrap;color:var(--text);
   opacity:0;pointer-events:none;transition:opacity .15s;z-index:30;font-weight:600}
 .think-chip:hover .think-tooltip{opacity:1}
 .card-vote-btn{position:absolute;top:4px;right:4px;z-index:10;
@@ -194,7 +186,7 @@ input[type=text]::placeholder{color:var(--muted)}
   max-height:240px;overflow-y:auto}
 .log-panel::-webkit-scrollbar{width:4px}
 .log-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.log-h{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.6rem;font-weight:600}
+.panel-h{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.6rem;font-weight:600}
 .log-entry{font-size:.82rem;padding:.3rem .45rem;border-radius:6px;margin-bottom:.2rem;line-height:1.4}
 .log-clue{background:rgba(240,192,64,.1);color:var(--gold)}
 .log-correct{background:rgba(39,174,96,.1);color:#7defa0}
@@ -203,7 +195,6 @@ input[type=text]::placeholder{color:var(--muted)}
 .log-system{color:var(--muted);font-style:italic}
 .log-endturn{color:#b090e0;font-style:italic}
 .players-panel{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:1rem}
-.players-panel .log-h{margin-bottom:.75rem}
 .gp-row{display:flex;align-items:center;gap:.5rem;padding:.4rem .5rem;border-radius:7px;margin-bottom:.25rem;font-size:.82rem}
 .gp-row.active-team{background:var(--surface3)}
 .gp-name{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -212,8 +203,7 @@ input[type=text]::placeholder{color:var(--muted)}
 .r-op{background:rgba(192,57,43,.15);color:#ffb0a0;border:1px solid rgba(192,57,43,.2)}
 .b-sm{background:rgba(26,82,118,.4);color:#90c4ff;border:1px solid rgba(41,128,185,.3)}
 .b-op{background:rgba(26,82,118,.2);color:#a0d0ff;border:1px solid rgba(41,128,185,.15)}
-.team-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);
-  padding:.2rem .3rem .4rem;font-weight:700}
+.team-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.2rem .3rem .4rem;font-weight:700}
 .host-actions{display:flex;flex-direction:column;gap:.5rem}
 
 /* ── GAME OVER ── */
@@ -250,13 +240,13 @@ input[type=text]::placeholder{color:var(--muted)}
   <div class="home-cards">
     <div class="home-card">
       <h2>Host a Room</h2>
-      <input type="text" id="host-name" placeholder="Your name" maxlength="20">
+      <input type="text" id="host-name" placeholder="Your name" maxlength="20" onkeydown="if(event.key==='Enter')hostRoom()">
       <button class="btn btn-primary" onclick="hostRoom()">Create Room</button>
     </div>
     <div class="home-card">
       <h2>Join a Room</h2>
-      <input type="text" id="join-name" placeholder="Your name" maxlength="20">
-      <input type="text" id="join-code" placeholder="Room code" maxlength="6" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+      <input type="text" id="join-name" placeholder="Your name" maxlength="20" onkeydown="if(event.key==='Enter')joinRoom()">
+      <input type="text" id="join-code" placeholder="Room code" maxlength="6" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')joinRoom()">
       <button class="btn btn-ghost" onclick="joinRoom()">Join Room</button>
     </div>
   </div>
@@ -277,39 +267,40 @@ input[type=text]::placeholder{color:var(--muted)}
 
     <div class="lobby-main">
       <div class="panel team-panel red">
-        <h3>Red Team</h3>
+        <div class="panel-h">Red Team</div>
         <div id="red-players"></div>
       </div>
       <div class="panel team-panel blue">
-        <h3>Blue Team</h3>
+        <div class="panel-h">Blue Team</div>
         <div id="blue-players"></div>
       </div>
     </div>
 
+    <!-- Join/role selection -->
     <div class="panel" id="join-panel">
-      <h3>Join as</h3>
+      <div class="panel-h">Pick Your Team &amp; Role</div>
       <div class="lobby-join-form">
         <div>
-          <div style="font-size:.78rem;color:var(--muted);margin-bottom:.4rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase">Team</div>
+          <div style="font-size:.75rem;color:var(--muted);margin-bottom:.4rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase">Team</div>
           <div class="seg" id="team-seg">
             <button class="seg-btn active" data-val="red" onclick="setSeg('team','red',this)">🔴 Red</button>
             <button class="seg-btn" data-val="blue" onclick="setSeg('team','blue',this)">🔵 Blue</button>
           </div>
         </div>
         <div>
-          <div style="font-size:.78rem;color:var(--muted);margin-bottom:.4rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase">Role</div>
+          <div style="font-size:.75rem;color:var(--muted);margin-bottom:.4rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase">Role</div>
           <div class="seg" id="role-seg">
             <button class="seg-btn active" data-val="operative" onclick="setSeg('role','operative',this)">🕵️ Operative</button>
             <button class="seg-btn" data-val="spymaster" onclick="setSeg('role','spymaster',this)">👁 Spymaster</button>
           </div>
         </div>
-        <button class="btn btn-primary" onclick="sendJoin()">Confirm Role</button>
+        <button class="btn btn-primary" onclick="sendJoin()">Confirm Selection</button>
       </div>
     </div>
 
     <div class="lobby-actions">
       <button class="btn btn-primary" id="start-btn" onclick="startGame()" style="display:none">Start Game</button>
-      <button class="btn btn-danger btn-sm" id="reset-btn" onclick="resetRoom()" style="display:none">Reset</button>
+      <button class="btn btn-danger btn-sm" id="reset-btn" onclick="resetRoom()" style="display:none">Reset Room</button>
     </div>
   </div>
 </div>
@@ -338,12 +329,12 @@ input[type=text]::placeholder{color:var(--muted)}
     <div class="game-body">
       <div class="board" id="board"></div>
       <div class="sidebar">
-        <div class="players-panel" id="players-panel">
-          <div class="log-h">Players</div>
+        <div class="players-panel">
+          <div class="panel-h">Players</div>
           <div id="game-players-list"></div>
         </div>
         <div class="log-panel">
-          <div class="log-h">Game Log</div>
+          <div class="panel-h">Game Log</div>
           <div id="game-log"></div>
         </div>
         <div class="host-actions" id="host-actions" style="display:none">
@@ -355,7 +346,7 @@ input[type=text]::placeholder{color:var(--muted)}
   </div>
 </div>
 
-<!-- GAME OVER OVERLAY -->
+<!-- GAME OVER -->
 <div class="go-overlay" id="go-overlay">
   <div class="go-box">
     <div class="go-title" id="go-title">Red Wins!</div>
@@ -370,11 +361,10 @@ input[type=text]::placeholder{color:var(--muted)}
 <!-- KICKED -->
 <div id="kicked" class="screen">
   <div class="kicked-msg">You were kicked.</div>
-  <div class="kicked-sub">The host has removed you from the room.</div>
+  <div class="kicked-sub">The host removed you from the room.</div>
   <button class="btn btn-primary" onclick="goHome()">Return Home</button>
 </div>
 
-<!-- TOASTS -->
 <div class="copy-toast" id="copy-toast">Link copied!</div>
 <div class="error-toast" id="error-toast"></div>
 
@@ -386,11 +376,10 @@ if (!pid) { pid = crypto.randomUUID(); localStorage.setItem('cn_pid', pid); }
 // ===== STATE =====
 let ws = null, roomCode = null, gameState = null;
 let chosenTeam = 'red', chosenRole = 'operative';
-let myName = null;
-let pendingName = null;
+let myName = null, pendingName = null;
 let reconnectTimer = null;
 
-// ===== WEBSOCKET =====
+// ===== WS =====
 function connect() {
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
   ws = new WebSocket(`${proto}://${location.host}`);
@@ -398,11 +387,6 @@ function connect() {
     ws.send(JSON.stringify({ type: 'connect', playerId: pid }));
     document.getElementById('conn-status').textContent = 'Connected ✓';
     clearTimeout(reconnectTimer);
-    // Auto-join from URL
-    const urlCode = new URLSearchParams(location.search).get('room');
-    if (urlCode) {
-      document.getElementById('join-code').value = urlCode.toUpperCase();
-    }
   };
   ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch { return; } handleMsg(m); };
   ws.onclose = () => {
@@ -421,13 +405,21 @@ function handleMsg(msg) {
       roomCode = msg.code;
       applyState(msg.state);
       showScreen('lobby');
+      // Host auto-joins with their name on whichever team/role they picked
       if (pendingName) { send({ type: 'join', name: pendingName, team: chosenTeam, role: chosenRole }); pendingName = null; }
       return;
     case 'room_joined':
       roomCode = msg.code;
       applyState(msg.state);
       showScreen('lobby');
-      if (pendingName) { send({ type: 'join', name: pendingName, team: chosenTeam, role: chosenRole }); pendingName = null; }
+      // Guest arrives in lobby WITHOUT auto-joining — they pick team/role first
+      pendingName = null;
+      return;
+    case 'room_reset':
+      roomCode = msg.newCode;
+      applyState(msg.state);
+      // Stay on/go to lobby
+      if (currentScreen() !== 'lobby') showScreen('lobby');
       return;
     case 'state':
       applyState(msg.state);
@@ -445,7 +437,7 @@ function handleMsg(msg) {
   }
 }
 
-// ===== STATE APPLY =====
+// ===== STATE =====
 function applyState(s) {
   gameState = s;
   const me = s.players.find(p => p.id === pid);
@@ -458,16 +450,8 @@ function applyState(s) {
     if (currentScreen() !== 'game') showScreen('game');
   }
 }
-function currentScreen() {
-  const a = document.querySelector('.screen.active');
-  return a ? a.id : null;
-}
-
-// ===== SCREENS =====
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+function currentScreen() { const a = document.querySelector('.screen.active'); return a ? a.id : null; }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 function goHome() { location.href = location.pathname; }
 
 // ===== LOBBY RENDER =====
@@ -486,9 +470,17 @@ function renderLobby(s) {
       ? '<span class="role-badge spymaster">Spymaster</span>'
       : '<span class="role-badge operative">Operative</span>';
     const youEl = p.id === pid ? ' <span class="you-tag">(you)</span>' : '';
-    const kickEl = s.isHost && p.id !== pid
-      ? `<button class="kick-btn" onclick="kickPlayer('${p.id}')">Kick</button>` : '';
-    div.innerHTML = `<span class="player-name">${esc(p.name)}${youEl}</span>${roleEl}${kickEl}`;
+    // Host controls: move team, move role, kick
+    let hostCtrl = '';
+    if (s.isHost && p.id !== pid) {
+      const otherTeam = p.team === 'red' ? 'blue' : 'red';
+      const otherRole = p.role === 'operative' ? 'spymaster' : 'operative';
+      hostCtrl = `
+        <button class="move-btn" onclick="movePlayer('${p.id}','${otherTeam}','${p.role}')" title="Switch team">⇄ Team</button>
+        <button class="move-btn" onclick="movePlayer('${p.id}','${p.team}','${otherRole}')" title="Switch role">⇄ Role</button>
+        <button class="kick-btn" onclick="kickPlayer('${p.id}')">Kick</button>`;
+    }
+    div.innerHTML = `<span class="player-name">${esc(p.name)}${youEl}</span>${roleEl}${hostCtrl}`;
     (p.team === 'red' ? redDiv : blueDiv).appendChild(div);
   }
 
@@ -498,11 +490,9 @@ function renderLobby(s) {
 
 // ===== GAME RENDER =====
 function renderGame(s) {
-  // Scores
   document.getElementById('score-red').textContent = s.redNeed - s.redRevealed;
   document.getElementById('score-blue').textContent = s.blueNeed - s.blueRevealed;
 
-  // Turn indicator
   const dot = document.getElementById('turn-dot');
   const turnTxt = document.getElementById('turn-text');
   if (s.phase === 'gameover') {
@@ -513,22 +503,15 @@ function renderGame(s) {
     turnTxt.textContent = s.turn === 'red' ? "🔴 Red Team's Turn" : "🔵 Blue Team's Turn";
   }
 
-  // Room chip
   document.getElementById('game-room-chip').textContent = 'ROOM: ' + (roomCode || '');
   document.getElementById('end-game-btn').style.display = s.isHost && s.phase === 'playing' ? '' : 'none';
 
-  // Clue bar
   renderClueBar(s);
-
-  // Board
   renderBoard(s);
-
-  // Sidebar
   renderGamePlayers(s);
   renderLog(s);
   document.getElementById('host-actions').style.display = s.isHost ? 'flex' : 'none';
 
-  // Game over overlay
   const overlay = document.getElementById('go-overlay');
   if (s.phase === 'gameover') {
     overlay.classList.add('show');
@@ -545,151 +528,91 @@ function renderGame(s) {
 function renderClueBar(s) {
   const bar = document.getElementById('clue-bar');
   bar.innerHTML = '';
-
   const mePlayer = s.players.find(p => p.id === pid);
-  const isSM = s.iAmSpymaster;
   const isMyTeam = mePlayer && mePlayer.team === s.turn;
-  const isSMTurn = isSM && isMyTeam;
+  const isSMTurn = s.iAmSpymaster && isMyTeam;
   const isOpTurn = mePlayer && mePlayer.role === 'operative' && isMyTeam;
 
   if (s.phase === 'gameover') {
-    bar.innerHTML = '<span style="color:var(--muted);font-style:italic">Game over</span>';
-    return;
+    bar.innerHTML = '<span style="color:var(--muted);font-style:italic">Game over</span>'; return;
   }
-
   if (s.clue) {
-    // Show clue
-    const clueEl = document.createElement('span');
-    clueEl.className = 'clue-word ' + s.turn;
-    clueEl.textContent = s.clue;
-    bar.appendChild(clueEl);
-
-    const numEl = document.createElement('div');
-    numEl.className = 'clue-num';
-    numEl.textContent = s.clueNumber;
-    bar.appendChild(numEl);
-
-    const hintEl = document.createElement('span');
-    hintEl.className = 'clue-hint';
-    hintEl.textContent = `Clue for ${s.turn} team`;
-    bar.appendChild(hintEl);
-
-    const spacer = document.createElement('div');
-    spacer.style.flex = '1';
-    bar.appendChild(spacer);
-
-    const glEl = document.createElement('span');
-    glEl.className = 'guesses-left';
-    glEl.textContent = `Guesses left: ${s.guessesLeft > 0 ? s.guessesLeft : '∞'}`;
-    bar.appendChild(glEl);
-
+    const cw = document.createElement('span'); cw.className = 'clue-word ' + s.turn; cw.textContent = s.clue; bar.appendChild(cw);
+    const cn = document.createElement('div'); cn.className = 'clue-num'; cn.textContent = s.clueNumber; bar.appendChild(cn);
+    const ch = document.createElement('span'); ch.className = 'clue-hint'; ch.textContent = `Clue for ${s.turn} team`; bar.appendChild(ch);
+    const sp = document.createElement('div'); sp.style.flex = '1'; bar.appendChild(sp);
+    const gl = document.createElement('span'); gl.className = 'guesses-left'; gl.textContent = `Guesses left: ${s.guessesLeft > 0 ? s.guessesLeft : '∞'}`; bar.appendChild(gl);
     if (isOpTurn) {
-      const etBtn = document.createElement('button');
-      etBtn.className = 'btn btn-ghost btn-sm';
-      etBtn.textContent = 'End Turn';
-      etBtn.onclick = endTurn;
-      bar.appendChild(etBtn);
+      const et = document.createElement('button'); et.className = 'btn btn-ghost btn-sm'; et.textContent = 'End Turn'; et.onclick = endTurn; bar.appendChild(et);
     }
   } else if (isSMTurn) {
-    // Clue input form
-    const form = document.createElement('div');
-    form.className = 'clue-form';
-    form.innerHTML = `
-      <input type="text" id="clue-word-inp" placeholder="Clue word" maxlength="20" onkeydown="if(event.key==='Enter')submitClue()">
+    const form = document.createElement('div'); form.className = 'clue-form';
+    form.innerHTML = `<input type="text" id="clue-word-inp" placeholder="Clue word" maxlength="20" onkeydown="if(event.key==='Enter')submitClue()">
       <input type="number" class="clue-num-input" id="clue-num-inp" min="1" max="9" value="2">
-      <button class="btn btn-primary btn-sm" onclick="submitClue()">Give Clue</button>
-    `;
+      <button class="btn btn-primary btn-sm" onclick="submitClue()">Give Clue</button>`;
     bar.appendChild(form);
   } else {
-    const wait = document.createElement('span');
-    wait.className = 'waiting-clue';
-    wait.textContent = `Waiting for ${s.turn} spymaster to give a clue…`;
-    bar.appendChild(wait);
+    const w = document.createElement('span'); w.className = 'waiting-clue'; w.textContent = `Waiting for ${s.turn} spymaster to give a clue…`; bar.appendChild(w);
   }
 }
 
 function renderBoard(s) {
   const board = document.getElementById('board');
   board.innerHTML = '';
-
   const mePlayer = s.players.find(p => p.id === pid);
-  const canAct = mePlayer && mePlayer.role === 'operative' && mePlayer.team === s.turn
-    && s.phase === 'playing' && !!s.clue;
+  const canAct = mePlayer && mePlayer.role === 'operative' && mePlayer.team === s.turn && s.phase === 'playing' && !!s.clue;
 
   for (let i = 0; i < 25; i++) {
     const card = document.createElement('div');
     card.className = 'card';
-
     const revealed = s.revealed[i];
-    const color = s.colors[i]; // null if hidden
+    const color = s.colors[i];
 
     if (revealed) {
       card.classList.add('rev-' + (color || 'neutral'), 'no-hover');
     } else {
-      // Color hints for spymaster
       if (color === 'red') card.classList.add('hint-red');
       else if (color === 'blue') card.classList.add('hint-blue');
       else if (color === 'assassin') card.classList.add('hint-assassin');
       else if (color === 'neutral') card.classList.add('hint-neutral');
-
       if (!canAct) card.classList.add('no-hover');
     }
 
-    // Word
-    const wEl = document.createElement('div');
-    wEl.className = 'card-word';
-    wEl.textContent = s.words[i];
-    card.appendChild(wEl);
+    const wEl = document.createElement('div'); wEl.className = 'card-word'; wEl.textContent = s.words[i]; card.appendChild(wEl);
 
     if (!revealed) {
-      // Thinking chips (top-left)
+      // Thinking chips
       const thinkers = s.thinkMap && s.thinkMap[i];
       if (thinkers && thinkers.length) {
-        const tz = document.createElement('div');
-        tz.className = 'card-think-zone';
+        const tz = document.createElement('div'); tz.className = 'card-think-zone';
         for (const t of thinkers) {
-          const chip = document.createElement('div');
-          chip.className = 'think-chip';
-          const tip = document.createElement('span');
-          tip.className = 'think-tooltip';
-          tip.textContent = t.name + (t.isMe ? ' (you)' : '');
-          chip.textContent = '🤔';
-          chip.appendChild(tip);
-          tz.appendChild(chip);
+          const chip = document.createElement('div'); chip.className = 'think-chip';
+          const tip = document.createElement('span'); tip.className = 'think-tooltip'; tip.textContent = t.name + (t.isMe ? ' (you)' : '');
+          chip.textContent = '🤔'; chip.appendChild(tip); tz.appendChild(chip);
         }
         card.appendChild(tz);
       }
 
-      // Vote button / count (top-right)
+      // Vote button
       const vm = s.voteMap && s.voteMap[i];
-      const voteVisible = canAct || (vm && vm.count > 0);
-      if (voteVisible) {
+      const showVote = canAct || (vm && vm.count > 0);
+      if (showVote) {
         const vBtn = document.createElement('div');
-        const iVoted = vm && vm.iVoted;
-        vBtn.className = 'card-vote-btn' + (iVoted ? ' i-voted' : '');
-        const count = vm ? vm.count : 0;
+        vBtn.className = 'card-vote-btn' + (vm && vm.iVoted ? ' i-voted' : '');
+        const cnt = vm ? vm.count : 0;
         const needed = s.voteNeeded || 1;
-        const voteCountEl = document.createElement('span');
-        voteCountEl.className = 'vote-count';
-        voteCountEl.textContent = `${count}/${needed}`;
-        vBtn.textContent = '✓ ';
-        vBtn.appendChild(voteCountEl);
-        if (vm && vm.voters && vm.voters.length) {
-          vBtn.title = 'Voted by: ' + vm.voters.join(', ');
-        }
+        vBtn.innerHTML = `✓ <span class="vote-count">${cnt}/${needed}</span>`;
+        if (vm && vm.voters && vm.voters.length) vBtn.title = 'Voted by: ' + vm.voters.join(', ');
         if (canAct) {
-          vBtn.onclick = e => { e.stopPropagation(); sendVote(i, !!iVoted); };
+          vBtn.onclick = e => { e.stopPropagation(); sendVote(i, !!(vm && vm.iVoted)); };
         } else {
-          vBtn.style.cursor = 'default';
-          vBtn.style.pointerEvents = 'none';
+          vBtn.style.cursor = 'default'; vBtn.style.pointerEvents = 'none';
         }
         card.appendChild(vBtn);
       }
 
-      // Click card = think
-      if (canAct) {
-        card.onclick = () => sendThink(i);
-      }
+      // Click = think (toggle this card in your list)
+      if (canAct) card.onclick = () => sendThink(i);
     }
 
     board.appendChild(card);
@@ -699,36 +622,20 @@ function renderBoard(s) {
 function renderGamePlayers(s) {
   const list = document.getElementById('game-players-list');
   list.innerHTML = '';
-
   for (const team of ['red', 'blue']) {
-    const label = document.createElement('div');
-    label.className = 'team-label';
-    label.textContent = (team === 'red' ? '🔴' : '🔵') + ' ' + (team === 'red' ? 'Red' : 'Blue');
-    list.appendChild(label);
-
+    const lbl = document.createElement('div'); lbl.className = 'team-label';
+    lbl.textContent = (team === 'red' ? '🔴' : '🔵') + ' ' + (team === 'red' ? 'Red' : 'Blue');
+    list.appendChild(lbl);
     const tps = s.players.filter(p => p.team === team);
-    if (!tps.length) {
-      const empty = document.createElement('div');
-      empty.style.cssText = 'color:var(--muted);font-size:.8rem;padding:.25rem .5rem';
-      empty.textContent = 'No players';
-      list.appendChild(empty);
-    }
+    if (!tps.length) { const e = document.createElement('div'); e.style.cssText = 'color:var(--muted);font-size:.8rem;padding:.25rem .5rem'; e.textContent = 'No players'; list.appendChild(e); }
     for (const p of tps) {
-      const row = document.createElement('div');
-      row.className = 'gp-row' + (p.team === s.turn ? ' active-team' : '');
-      const roleClass = p.team === 'red'
-        ? (p.role === 'spymaster' ? 'r-sm' : 'r-op')
-        : (p.role === 'spymaster' ? 'b-sm' : 'b-op');
-      const kickEl = s.isHost && p.id !== pid
-        ? `<button class="kick-btn" style="font-size:.65rem;padding:.15rem .4rem" onclick="kickPlayer('${p.id}')">✕</button>` : '';
-      row.innerHTML = `
-        <span class="gp-name">${esc(p.name)}${p.id === pid ? ' <span style="color:var(--muted);font-size:.65rem">(you)</span>' : ''}</span>
-        <span class="gp-role ${roleClass}">${p.role === 'spymaster' ? '👁 SM' : '🕵️'}</span>
-        ${kickEl}`;
+      const row = document.createElement('div'); row.className = 'gp-row' + (p.team === s.turn ? ' active-team' : '');
+      const rc = p.team === 'red' ? (p.role === 'spymaster' ? 'r-sm' : 'r-op') : (p.role === 'spymaster' ? 'b-sm' : 'b-op');
+      const kickEl = s.isHost && p.id !== pid ? `<button class="kick-btn" style="font-size:.65rem;padding:.15rem .4rem" onclick="kickPlayer('${p.id}')">✕</button>` : '';
+      row.innerHTML = `<span class="gp-name">${esc(p.name)}${p.id === pid ? ' <span style="color:var(--muted);font-size:.65rem">(you)</span>' : ''}</span><span class="gp-role ${rc}">${p.role === 'spymaster' ? '👁 SM' : '🕵️'}</span>${kickEl}`;
       list.appendChild(row);
     }
-    const sp = document.createElement('div'); sp.style.height = '.4rem';
-    list.appendChild(sp);
+    const sp = document.createElement('div'); sp.style.height = '.4rem'; list.appendChild(sp);
   }
 }
 
@@ -738,21 +645,10 @@ function renderLog(s) {
   const icons = { red: '🔴', blue: '🔵', neutral: '⬜', assassin: '💀' };
   for (const entry of (s.log || []).slice(0, 50)) {
     const div = document.createElement('div');
-    if (entry.type === 'clue') {
-      div.className = 'log-entry log-clue';
-      div.textContent = `${entry.team.toUpperCase()} clue: "${entry.text}" (${entry.num})`;
-    } else if (entry.type === 'guess') {
-      const correct = entry.color === entry.team;
-      const neutral = entry.color === 'neutral';
-      div.className = 'log-entry ' + (correct ? 'log-correct' : neutral ? 'log-neutral' : 'log-wrong');
-      div.textContent = `${entry.guesser} → ${entry.word} ${icons[entry.color] || ''}`;
-    } else if (entry.type === 'endturn') {
-      div.className = 'log-entry log-endturn';
-      div.textContent = `${entry.name} ended ${entry.team}'s turn`;
-    } else {
-      div.className = 'log-entry log-system';
-      div.textContent = entry.text;
-    }
+    if (entry.type === 'clue') { div.className = 'log-entry log-clue'; div.textContent = `${entry.team.toUpperCase()} clue: "${entry.text}" (${entry.num})`; }
+    else if (entry.type === 'guess') { const correct = entry.color === entry.team; div.className = 'log-entry ' + (correct ? 'log-correct' : entry.color === 'neutral' ? 'log-neutral' : 'log-wrong'); div.textContent = `${entry.guesser} → ${entry.word} ${icons[entry.color] || ''}`; }
+    else if (entry.type === 'endturn') { div.className = 'log-entry log-endturn'; div.textContent = `${entry.name} ended ${entry.team}'s turn`; }
+    else { div.className = 'log-entry log-system'; div.textContent = entry.text; }
     logDiv.appendChild(div);
   }
 }
@@ -761,7 +657,7 @@ function renderLog(s) {
 function hostRoom() {
   const name = document.getElementById('host-name').value.trim();
   if (!name) { showError('Enter your name'); return; }
-  pendingName = name;
+  myName = name; pendingName = name;
   send({ type: 'create_room' });
 }
 
@@ -770,13 +666,12 @@ function joinRoom() {
   const code = (document.getElementById('join-code').value || '').trim().toUpperCase();
   if (!name) { showError('Enter your name'); return; }
   if (!code) { showError('Enter a room code'); return; }
-  pendingName = name;
+  myName = name; pendingName = name;
   send({ type: 'join_room', code });
 }
 
 function sendJoin() {
-  const me = gameState && gameState.players.find(p => p.id === pid);
-  const name = myName || me && me.name || prompt('Enter your name:');
+  const name = myName || prompt('Enter your name:');
   if (!name) return;
   myName = name;
   send({ type: 'join', name, team: chosenTeam, role: chosenRole });
@@ -788,6 +683,7 @@ function newRound() { send({ type: 'newround' }); }
 function endTurn() { send({ type: 'endturn' }); }
 function leaveRoom() { send({ type: 'abandon' }); }
 function kickPlayer(id) { send({ type: 'kick', playerId: id }); }
+function movePlayer(id, team, role) { send({ type: 'move_player', playerId: id, team, role }); }
 function sendThink(idx) { send({ type: 'think', index: idx }); }
 function sendVote(idx, wasVoted) { send({ type: 'vote', index: idx, wasVoted }); }
 
@@ -798,10 +694,9 @@ function submitClue() {
   send({ type: 'clue', word, number });
 }
 
-// ===== SEG CONTROL =====
+// ===== SEG =====
 function setSeg(type, val, el) {
-  if (type === 'team') chosenTeam = val;
-  else chosenRole = val;
+  if (type === 'team') chosenTeam = val; else chosenRole = val;
   document.querySelectorAll(`#${type}-seg .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.val === val));
 }
 
@@ -810,19 +705,15 @@ function copyInvite() {
   if (!roomCode) return;
   const url = `${location.protocol}//${location.host}${location.pathname}?room=${roomCode}`;
   navigator.clipboard.writeText(url).then(() => {
-    const t = document.getElementById('copy-toast');
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2200);
+    const t = document.getElementById('copy-toast'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200);
   }).catch(() => showError('Code: ' + roomCode));
 }
 
 // ===== TOASTS =====
 let errTimer = null;
 function showError(msg) {
-  const t = document.getElementById('error-toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(errTimer);
-  errTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  const t = document.getElementById('error-toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(errTimer); errTimer = setTimeout(() => t.classList.remove('show'), 3000);
 }
 
 // ===== UTIL =====
@@ -831,9 +722,7 @@ function esc(s) { const d = document.createElement('div'); d.textContent = s; re
 // ===== INIT =====
 window.addEventListener('DOMContentLoaded', () => {
   const urlCode = new URLSearchParams(location.search).get('room');
-  if (urlCode) {
-    document.getElementById('join-code').value = urlCode.toUpperCase();
-  }
+  if (urlCode) document.getElementById('join-code').value = urlCode.toUpperCase();
   connect();
 });
 </script>

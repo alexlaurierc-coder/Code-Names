@@ -19,7 +19,6 @@ function getLocalIP() {
 
 // ===================== WORDS =====================
 const WORDS = [
-  // Classic
   'AFRICA','AGENT','AIR','ALIEN','ALPS','AMAZON','ANGEL','APPLE','ARM','ATLANTIS',
   'BALL','BAND','BANK','BAR','BARK','BAT','BEACH','BEAR','BELL','BILL',
   'BLOCK','BOMB','BOND','BOOT','BOTTLE','BOW','BOX','BRIDGE','BUG','BUTTON',
@@ -47,15 +46,29 @@ const WORDS = [
   'WIND','WITCH','WOLF','WORM','YARD','FLASH','BLADE','STORM','FROST','EAGLE',
   'RAVEN','VIPER','COBRA','BRUSH','COMET','CRYPT','DAGGER','EMBER','FLARE','FORGE',
   'GROVE','HAVEN','IVORY','LANCE','LAVA','LOTUS','LUNAR','MAPLE','NEXUS','ORBIT',
-  // Funny / modern / spicy
-  'YOLO','SIMP','VIBE','RIZZ','SLAY','CRINGE','KAREN','BOOMER','CHAD','BRUH',
-  'STAN','MEME','SELFIE','DRAMA','TOXIC','GHOSTED','BASED','LOWKEY','BUSSIN','FLEX',
-  'CLOUT','SALTY','WOKE','SNOWFLAKE','GOAT','NPC','GRIND','CLUTCH','SWIPE','BINGE',
-  'VIRAL','TRENDING','RATIO','DRIP','FINESSE','THICC','SMASH','CANCELED','SIMP','OOMF',
-  'CATFISH','STREAMER','GLITCH','LOOT','SPAWN','RESPAWN','SPEEDRUN','NERD','GAMER','TROLL',
-  'THIRST','SLIDE','RECEIPTS','TEA','SPILL','SNITCH','SNACK','LEWK','FIT','GLOW',
-  'ROAST','DRAG','SHADE','PETTY','EXTRA','BASIC','MAIN','SHIP','CANON','ARC',
-  'PLOT','TWIST','VILLAIN','ERA','FLOP','BOP','BANGER','SLAPS','HIT','MISS',
+  'ANCHOR','ARROW','ASH','AXE','BADGE','BARREL','BEACON','BEAN','BERRY','BLANK',
+  'BOLT','BORDER','BRANCH','BRAND','BREACH','BREW','BRICK','BRONZE','BUBBLE','BUCK',
+  'BUFFALO','BUNKER','BURST','CABIN','CABLE','CAGE','CANAL','CANVAS','CARGO','CAST',
+  'CAVE','CHAIN','CHALK','CHAMBER','CHANNEL','CHARGE','CHART','CHASE','CHIP','CLAY',
+  'CLINIC','CLIP','CLOUD','COAL','COAST','COIL','COLLAR','COLUMN','COMPASS','CONE',
+  'CORD','CORE','COSMOS','COTTON','CRATER','CREEK','CREST','CROSS','CRUDE','CRYSTAL',
+  'CURRENT','CURTAIN','CURVE','DAM','DART','DASH','DAWN','DECK','DEEP','DELTA',
+  'DEPOT','DIAL','DIVER','DOME','DRAIN','DRIFT','DRUM','DUSK','DUST','ECHO',
+  'EDGE','ELDER','EMPIRE','ENERGY','FANG','FARM','FAULT','FERRY','FILTER','FLAME',
+  'FLASK','FLEET','FLINT','FLOOD','FLOW','FOAM','FOG','FOLD','FORT','FOSSIL',
+  'FRAME','FRONTIER','FUSE','GALAXY','GATE','GEAR','GEM','GLACIER','GORGE','GRAIN',
+  'GRAVEL','GRID','GRIT','GULF','HARBOR','HARVEST','HAZARD','HEAP','HEAT','HIVE',
+  'HOLLOW','HORIZON','HULL','HUNT','HUSK','IDOL','INLET','ISLE','JAW','JEWEL',
+  'JUNGLE','LAKE','LASH','LAUNCH','LAYER','LEDGE','LENS','LEVEL','LINK','LOOP',
+  'LURE','MARSH','MAST','MAZE','MEDAL','MESH','METEOR','MINERAL','MIRROR','MOAT',
+  'MIST','MODULE','MOSS','MOTOR','MOUND','MUSCLE','NEEDLE','NODE','NORTH','OASIS',
+  'OUTPOST','PATROL','PEAK','PEBBLE','PETAL','PIXEL','PLAIN','PLANK','PLATEAU','PLEDGE',
+  'POCKET','POLAR','PORTAL','PROBE','PULSE','PUMP','QUARTZ','QUEST','RADAR','RANGE',
+  'RAPID','REEF','RELAY','RELIC','RIDGE','RIFT','RIVET','ROVER','SAND','SHARD',
+  'SHELL','SHELTER','SHIFT','SIGNAL','SLATE','SLOPE','SPARK','SPHERE','SPIRE','SQUAD',
+  'SPUR','STEM','STONE','STRAND','SURGE','SWAMP','TIDE','TIMBER','TITAN','TORRENT',
+  'TRACE','TRAIL','TRENCH','TRIGGER','TUNDRA','TUNNEL','TURRET','VAULT','VEIN','VESSEL',
+  'VOYAGE','WARD','WASTE','WEDGE','WING','WIRE','ZONE','AURORA','BEACON','BRIDGE',
 ];
 
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -81,14 +94,18 @@ function freshState(){
     winner:null,winReason:'',
     redSpymasterId:null,blueSpymasterId:null,
     players:[],log:[],
-    thinking:{},   // playerId -> cardIndex (considering)
+    thinking:{},   // playerId -> [cardIndex, ...]
     votes:{},      // cardIndex -> [playerId, ...]
   };
 }
 
 // ===================== ROOMS =====================
 const rooms=new Map();
-function createRoom(hostId){let code;do{code=genCode();}while(rooms.has(code));rooms.set(code,{state:freshState(),clients:new Map(),lastActivity:Date.now(),hostId});return code;}
+function createRoom(hostId){
+  let code;do{code=genCode();}while(rooms.has(code));
+  rooms.set(code,{state:freshState(),clients:new Map(),lastActivity:Date.now(),hostId,banned:new Set()});
+  return code;
+}
 function getRoom(code){return rooms.get(code)||null;}
 function touch(code){const r=rooms.get(code);if(r)r.lastActivity=Date.now();}
 setInterval(()=>{const cut=Date.now()-4*60*60*1000;for(const[c,r]of rooms)if(r.lastActivity<cut){rooms.delete(c);console.log(`Room ${c} expired.`);}},30*60*1000);
@@ -101,20 +118,22 @@ function stateFor(room,pid){
   s.iAmSpymaster=isSM;s.myId=pid;s.isHost=room.hostId===pid;
   // Build thinking display: cardIndex -> [{name, isMe}]
   const thinkMap={};
-  for(const[vpid,cidx]of Object.entries(s.thinking)){
-    if(cidx==null)continue;
+  for(const[vpid,indices]of Object.entries(s.thinking)){
+    if(!indices||!indices.length)continue;
     const p=s.players.find(p=>p.id===vpid);
-    if(!thinkMap[cidx])thinkMap[cidx]=[];
-    thinkMap[cidx].push({name:p?p.name:'?',isMe:vpid===pid});
+    for(const cidx of indices){
+      if(!thinkMap[cidx])thinkMap[cidx]=[];
+      thinkMap[cidx].push({name:p?p.name:'?',isMe:vpid===pid});
+    }
   }
   s.thinkMap=thinkMap;
-  // Build vote display: cardIndex -> {voters:[names], count, needed, iVoted}
-  const voteMap={};
+  // Build vote display
   const teamOps=s.players.filter(p=>{
-    const player=s.players.find(q=>q.id===pid);
-    return player&&p.team===s.turn&&p.role==='operative';
+    const me=s.players.find(q=>q.id===pid);
+    return me&&p.team===s.turn&&p.role==='operative';
   });
   const needed=Math.max(1,Math.floor(teamOps.length/2)+1);
+  const voteMap={};
   for(const[cidx,voters]of Object.entries(s.votes)){
     if(!voters||!voters.length)continue;
     const names=voters.map(v=>{const p=s.players.find(q=>q.id===v);return p?p.name:'?';});
@@ -148,15 +167,18 @@ function switchTurn(gs){
 // ===================== HANDLERS =====================
 function handleJoin(ws,pid,code,msg){
   const room=getRoom(code);if(!room)return sendErr(ws,'Room not found.');
+  if(room.banned.has(pid))return sendErr(ws,'You have been removed from this room.');
   const gs=room.state;
   const{name,team,role}=msg;
   if(!name||!name.trim())return sendErr(ws,'Enter a name.');
   if(!['red','blue'].includes(team))return sendErr(ws,'Pick a team.');
   if(!['spymaster','operative'].includes(role))return sendErr(ws,'Pick a role.');
-  // Allow live join as operative only
   if(gs.phase==='playing'&&role==='spymaster')return sendErr(ws,'Cannot join as spymaster mid-game. Pick Operative.');
   if(gs.phase==='gameover')return sendErr(ws,'Game is over. Wait for the next round.');
   const trimName=name.trim().slice(0,20);
+  // Check duplicate names
+  const nameExists=gs.players.some(p=>p.id!==pid&&p.name.toLowerCase()===trimName.toLowerCase());
+  if(nameExists)return sendErr(ws,'That name is already taken!');
   if(role==='spymaster'){
     const key=team==='red'?'redSpymasterId':'blueSpymasterId';
     if(gs[key]&&gs[key]!==pid)return sendErr(ws,'Spymaster slot already taken!');
@@ -242,8 +264,11 @@ function handleThink(ws,pid,code,msg){
   if(!player||player.role==='spymaster'||player.team!==gs.turn)return;
   const idx=parseInt(msg.index);
   if(isNaN(idx)||idx<0||idx>24||gs.revealed[idx])return;
-  // Toggle thinking
-  gs.thinking[pid]=gs.thinking[pid]===idx?null:idx;
+  if(!gs.thinking[pid])gs.thinking[pid]=[];
+  const arr=gs.thinking[pid];
+  const pos=arr.indexOf(idx);
+  if(pos>=0)arr.splice(pos,1);  // toggle off
+  else arr.push(idx);            // toggle on
   touch(code);broadcastRoom(code);
 }
 
@@ -262,18 +287,13 @@ function handleVote(ws,pid,code,msg){
     gs.votes[ci]=voters.filter(v=>v!==pid);
     if(!gs.votes[ci].length)delete gs.votes[ci];
   }
-  // Toggle: if already voted this card, just remove (done above)
   const wasVoted=msg.wasVoted;
   if(!wasVoted){
     if(!gs.votes[idx])gs.votes[idx]=[];
     gs.votes[idx].push(pid);
-    // Check majority
     const teamOps=gs.players.filter(p=>p.team===gs.turn&&p.role==='operative');
     const needed=Math.max(1,Math.floor(teamOps.length/2)+1);
-    if(gs.votes[idx].length>=needed){
-      revealCard(room,pid,idx,code);
-      return;
-    }
+    if(gs.votes[idx].length>=needed){revealCard(room,pid,idx,code);return;}
   }
   touch(code);broadcastRoom(code);
 }
@@ -305,9 +325,32 @@ function handleKick(ws,pid,code,msg){
     gs.votes[ci]=voters.filter(v=>v!==targetId);
     if(!gs.votes[ci].length)delete gs.votes[ci];
   }
+  room.banned.add(targetId);
   const kws=room.clients.get(targetId);
   if(kws&&kws.readyState===WebSocket.OPEN)kws.send(JSON.stringify({type:'kicked'}));
   room.clients.delete(targetId);
+  touch(code);broadcastRoom(code);
+}
+
+function handleMovePlayer(ws,pid,code,msg){
+  const room=getRoom(code);if(!room)return sendErr(ws,'Room not found.');
+  if(room.hostId!==pid)return sendErr(ws,'Only the host can move players.');
+  const gs=room.state;
+  const player=gs.players.find(p=>p.id===msg.playerId);
+  if(!player)return sendErr(ws,'Player not found.');
+  const newTeam=msg.team||player.team;
+  const newRole=msg.role||player.role;
+  // Free up old spymaster slot
+  if(gs.redSpymasterId===msg.playerId)gs.redSpymasterId=null;
+  if(gs.blueSpymasterId===msg.playerId)gs.blueSpymasterId=null;
+  // Check new spymaster slot
+  if(newRole==='spymaster'){
+    const key=newTeam==='red'?'redSpymasterId':'blueSpymasterId';
+    if(gs[key]&&gs[key]!==msg.playerId)return sendErr(ws,`${newTeam} spymaster slot is already taken!`);
+    gs[key]=msg.playerId;
+  }
+  player.team=newTeam;
+  player.role=newRole;
   touch(code);broadcastRoom(code);
 }
 
@@ -323,7 +366,18 @@ function handleNewRound(ws,pid,code){
 
 function handleReset(ws,pid,code){
   const room=getRoom(code);if(!room)return;
-  room.state=freshState();touch(code);broadcastRoom(code);
+  // Generate new room code to invalidate kicked players' links
+  let newCode;do{newCode=genCode();}while(rooms.has(newCode));
+  room.state=freshState();
+  room.banned=new Set(); // clear bans on full reset
+  rooms.delete(code);
+  rooms.set(newCode,room);
+  // Update all active connections to use new code
+  for(const[,cws]of room.clients){
+    cws._roomCode=newCode;
+    if(cws.readyState===WebSocket.OPEN)
+      cws.send(JSON.stringify({type:'room_reset',newCode,state:stateFor(room,cws._pid)}));
+  }
 }
 
 function handleAbandon(ws,pid,code){
@@ -340,40 +394,66 @@ function handleAbandon(ws,pid,code){
 
 // ===================== WEBSOCKET =====================
 wss.on('connection',(ws)=>{
-  let pid=null,roomCode=null;
+  ws._pid=null;
+  ws._roomCode=null;
+
   ws.on('message',(raw)=>{
     let msg;try{msg=JSON.parse(raw);}catch{return;}
-    if(msg.type==='connect'){pid=msg.playerId;ws.send(JSON.stringify({type:'connected'}));return;}
-    if(!pid)return;
+
+    if(msg.type==='connect'){
+      ws._pid=msg.playerId;
+      ws.send(JSON.stringify({type:'connected'}));
+      return;
+    }
+    if(!ws._pid)return;
+    const pid=ws._pid;
+
     if(msg.type==='create_room'){
-      const code=createRoom(pid);roomCode=code;
-      const room=getRoom(code);room.clients.set(pid,ws);
-      ws.send(JSON.stringify({type:'room_created',code,state:stateFor(room,pid)}));return;
+      const code=createRoom(pid);
+      ws._roomCode=code;
+      const room=getRoom(code);
+      room.clients.set(pid,ws);
+      ws.send(JSON.stringify({type:'room_created',code,state:stateFor(room,pid)}));
+      return;
     }
     if(msg.type==='join_room'){
       const code=(msg.code||'').trim().toUpperCase();
       const room=getRoom(code);
       if(!room){ws.send(JSON.stringify({type:'error',msg:`Room "${code}" not found.`}));return;}
-      roomCode=code;room.clients.set(pid,ws);touch(code);
+      if(room.banned.has(pid)){ws.send(JSON.stringify({type:'error',msg:'You have been removed from this room.'}));return;}
+      ws._roomCode=code;
+      room.clients.set(pid,ws);
+      touch(code);
       ws.send(JSON.stringify({type:'room_joined',code,state:stateFor(room,pid)}));
-      broadcastRoom(code);return;
+      broadcastRoom(code);
+      return;
     }
+
+    const roomCode=ws._roomCode;
     if(!roomCode)return sendErr(ws,'Not in a room.');
+
     switch(msg.type){
-      case 'join':     handleJoin(ws,pid,roomCode,msg);break;
-      case 'start':    handleStart(ws,pid,roomCode);break;
-      case 'clue':     handleClue(ws,pid,roomCode,msg);break;
-      case 'guess':    handleGuess(ws,pid,roomCode,msg);break;
-      case 'think':    handleThink(ws,pid,roomCode,msg);break;
-      case 'vote':     handleVote(ws,pid,roomCode,msg);break;
-      case 'endturn':  handleEndTurn(ws,pid,roomCode);break;
-      case 'kick':     handleKick(ws,pid,roomCode,msg);break;
-      case 'newround': handleNewRound(ws,pid,roomCode);break;
-      case 'reset':    handleReset(ws,pid,roomCode);break;
-      case 'abandon':  handleAbandon(ws,pid,roomCode);roomCode=null;break;
+      case 'join':        handleJoin(ws,pid,roomCode,msg);break;
+      case 'start':       handleStart(ws,pid,roomCode);break;
+      case 'clue':        handleClue(ws,pid,roomCode,msg);break;
+      case 'guess':       handleGuess(ws,pid,roomCode,msg);break;
+      case 'think':       handleThink(ws,pid,roomCode,msg);break;
+      case 'vote':        handleVote(ws,pid,roomCode,msg);break;
+      case 'endturn':     handleEndTurn(ws,pid,roomCode);break;
+      case 'kick':        handleKick(ws,pid,roomCode,msg);break;
+      case 'move_player': handleMovePlayer(ws,pid,roomCode,msg);break;
+      case 'newround':    handleNewRound(ws,pid,roomCode);break;
+      case 'reset':       handleReset(ws,pid,roomCode);break;
+      case 'abandon':     handleAbandon(ws,pid,roomCode);ws._roomCode=null;break;
     }
   });
-  ws.on('close',()=>{if(pid&&roomCode){const room=getRoom(roomCode);if(room)room.clients.delete(pid);}});
+
+  ws.on('close',()=>{
+    if(ws._pid&&ws._roomCode){
+      const room=getRoom(ws._roomCode);
+      if(room)room.clients.delete(ws._pid);
+    }
+  });
 });
 
 // ===================== START =====================
