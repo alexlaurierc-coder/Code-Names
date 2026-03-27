@@ -89,7 +89,14 @@ input[type=text]::placeholder{color:var(--muted)}
 .kick-btn{background:rgba(192,57,43,.2);border:1px solid rgba(192,57,43,.35);color:#e74c3c;
   border-radius:6px;padding:.22rem .55rem;font-size:.72rem;cursor:pointer;transition:all .18s;flex-shrink:0}
 .kick-btn:hover{background:rgba(192,57,43,.4)}
-.drop-hint{font-size:.75rem;color:var(--muted);padding:.3rem .4rem;font-style:italic;opacity:.7}
+.zone-join-btn{display:block;width:100%;margin-top:.35rem;padding:.4rem;border-radius:7px;border:1px dashed transparent;
+  font-size:.75rem;font-weight:700;text-align:center;cursor:pointer;transition:all .2s;
+  background:transparent;color:var(--muted);letter-spacing:.04em}
+.team-col.red .zone-join-btn:hover{border-color:rgba(231,76,60,.5);background:rgba(192,57,43,.12);color:#ff9090}
+.team-col.blue .zone-join-btn:hover{border-color:rgba(41,128,185,.5);background:rgba(26,82,118,.14);color:#90c4ff}
+.zone-join-btn.is-here{border-color:rgba(91,79,207,.4);background:rgba(91,79,207,.1);color:#a090f0;cursor:default}
+.zone-join-btn.slot-taken{opacity:.35;cursor:not-allowed}
+.zone-join-btn.slot-taken:hover{border-color:transparent;background:transparent;color:var(--muted)}
 
 /* Color-first join panel */
 .panel{background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:1.5rem}
@@ -328,33 +335,6 @@ input[type=text]::placeholder{color:var(--muted)}
       <!-- Rendered by JS -->
     </div>
 
-    <!-- Join/role selection -->
-    <div class="panel" id="join-panel">
-      <div class="panel-h">Pick Your Team &amp; Role</div>
-      <!-- Step 1: Team -->
-      <div style="font-size:.72rem;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem">1. Choose Team</div>
-      <div class="team-pick">
-        <button class="team-pick-btn red-pick active" id="pick-red" onclick="pickTeam('red')">
-          🔴 Red Team
-        </button>
-        <button class="team-pick-btn blue-pick" id="pick-blue" onclick="pickTeam('blue')">
-          🔵 Blue Team
-        </button>
-      </div>
-      <!-- Step 2: Role -->
-      <div style="font-size:.72rem;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem">2. Choose Role</div>
-      <div class="role-pick">
-        <button class="role-pick-btn active" id="pick-operative" onclick="pickRole('operative')">
-          🕵️ Operative
-          <span class="role-sub">Guess the words</span>
-        </button>
-        <button class="role-pick-btn" id="pick-spymaster" onclick="pickRole('spymaster')">
-          👁 Spymaster
-          <span class="role-sub" id="sm-slot-label">Give the clues</span>
-        </button>
-      </div>
-      <button class="btn btn-primary" onclick="sendJoin()" style="width:100%">Confirm Selection</button>
-    </div>
 
     <div class="lobby-actions">
       <button class="btn btn-primary" id="start-btn" onclick="startGame()" style="display:none">Start Game</button>
@@ -649,39 +629,34 @@ function renderLobby(s) {
     const body = document.createElement('div');
     body.className = 'team-col-body';
 
-    // Spymaster zone
-    const smZone = makeDropZone(team, 'spymaster', s.isHost);
-    const smLabel = document.createElement('div');
-    smLabel.className = 'role-zone-label';
-    smLabel.innerHTML = '👁 Spymaster';
-    smZone.appendChild(smLabel);
-    const smPlayers = s.players.filter(p => p.team === team && p.role === 'spymaster');
-    if (smPlayers.length) {
-      smPlayers.forEach(p => smZone.appendChild(makePlayerCard(p, s.isHost)));
-    } else {
-      const hint = document.createElement('div');
-      hint.className = 'drop-hint';
-      hint.textContent = s.isHost ? 'Drag a player here' : 'No spymaster yet';
-      smZone.appendChild(hint);
-    }
-    body.appendChild(smZone);
+    const smId = team === 'red' ? s.redSpymasterId : s.blueSpymasterId;
 
-    // Operative zone
-    const opZone = makeDropZone(team, 'operative', s.isHost);
-    const opLabel = document.createElement('div');
-    opLabel.className = 'role-zone-label';
-    opLabel.innerHTML = '🕵️ Operatives';
-    opZone.appendChild(opLabel);
-    const opPlayers = s.players.filter(p => p.team === team && p.role === 'operative');
-    if (opPlayers.length) {
-      opPlayers.forEach(p => opZone.appendChild(makePlayerCard(p, s.isHost)));
-    } else {
-      const hint = document.createElement('div');
-      hint.className = 'drop-hint';
-      hint.textContent = s.isHost ? 'Drag a player here' : 'No operatives yet';
-      opZone.appendChild(hint);
+    for (const role of ['spymaster', 'operative']) {
+      const zone = makeDropZone(team, role, s.isHost);
+      const zLabel = document.createElement('div');
+      zLabel.className = 'role-zone-label';
+      zLabel.innerHTML = role === 'spymaster' ? '👁 Spymaster' : '🕵️ Operatives';
+      zone.appendChild(zLabel);
+
+      const zonePlayers = s.players.filter(p => p.team === team && p.role === role);
+      zonePlayers.forEach(p => zone.appendChild(makePlayerCard(p, s.isHost)));
+
+      // Click-to-join button
+      const meHere = s.players.find(p => p.id === pid && p.team === team && p.role === role);
+      const slotTaken = role === 'spymaster' && smId && smId !== pid;
+      const joinBtn = document.createElement('button');
+      joinBtn.className = 'zone-join-btn' + (meHere ? ' is-here' : slotTaken ? ' slot-taken' : '');
+      if (meHere) {
+        joinBtn.textContent = '✓ You are here';
+      } else if (slotTaken) {
+        joinBtn.textContent = '🔒 Slot taken';
+      } else {
+        joinBtn.textContent = '+ Join as ' + (role === 'spymaster' ? 'Spymaster' : 'Operative');
+        joinBtn.onclick = () => joinZone(team, role);
+      }
+      zone.appendChild(joinBtn);
+      body.appendChild(zone);
     }
-    body.appendChild(opZone);
 
     col.appendChild(body);
     teamsEl.appendChild(col);
@@ -734,17 +709,7 @@ function makePlayerCard(p, isHost) {
   return card;
 }
 
-function updateJoinPanelAvailability(s) {
-  // Update spymaster button availability
-  const smBtn = document.getElementById('pick-spymaster');
-  const smLabel = document.getElementById('sm-slot-label');
-  if (!smBtn) return;
-  const smKey = chosenTeam === 'red' ? 'redSpymasterId' : 'blueSpymasterId';
-  const slotTaken = s[smKey] && s[smKey] !== pid;
-  smBtn.disabled = slotTaken;
-  if (smLabel) smLabel.textContent = slotTaken ? 'Slot taken' : 'Give the clues';
-  if (slotTaken && chosenRole === 'spymaster') pickRole('operative');
-}
+function updateJoinPanelAvailability(s) { /* zones are rebuilt on every render */ }
 
 // ===== GAME RENDER =====
 function renderGame(s) {
@@ -961,12 +926,12 @@ function joinRoom() {
   send({ type: 'join_room', code });
 }
 
-function sendJoin() {
-  const name = myName || prompt('Enter your name:');
-  if (!name) return;
-  myName = name;
-  send({ type: 'join', name, team: chosenTeam, role: chosenRole });
+function joinZone(team, role) {
+  const name = myName;
+  if (!name) { showError('Enter your name on the home screen first'); return; }
+  send({ type: 'join', name, team, role });
 }
+function sendJoin() { /* legacy — no-op, zones handle joining now */ }
 
 function startGame() { send({ type: 'start' }); }
 function resetRoom() { send({ type: 'reset' }); }
