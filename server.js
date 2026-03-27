@@ -380,8 +380,22 @@ function handleReset(ws,pid,code){
   }
 }
 
+function closeRoom(code,reason){
+  const room=getRoom(code);if(!room)return;
+  for(const[,cws]of room.clients)
+    if(cws.readyState===WebSocket.OPEN)
+      cws.send(JSON.stringify({type:'room_closed',reason}));
+  rooms.delete(code);
+}
+
 function handleAbandon(ws,pid,code){
   const room=getRoom(code);if(!room)return;
+  if(room.hostId===pid){
+    // Host leaving closes the whole room
+    if(ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify({type:'left_room'}));
+    closeRoom(code,'The host left the room.');
+    return;
+  }
   const gs=room.state;
   gs.players=gs.players.filter(p=>p.id!==pid);
   if(gs.redSpymasterId===pid)gs.redSpymasterId=null;
@@ -451,7 +465,13 @@ wss.on('connection',(ws)=>{
   ws.on('close',()=>{
     if(ws._pid&&ws._roomCode){
       const room=getRoom(ws._roomCode);
-      if(room)room.clients.delete(ws._pid);
+      if(room){
+        if(room.hostId===ws._pid){
+          closeRoom(ws._roomCode,'The host disconnected.');
+        }else{
+          room.clients.delete(ws._pid);
+        }
+      }
     }
   });
 });

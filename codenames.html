@@ -365,6 +365,48 @@ input[type=text]::placeholder{color:var(--muted)}
   <button class="btn btn-primary" onclick="goHome()">Return Home</button>
 </div>
 
+<!-- ROOM CLOSED -->
+<div id="room-closed" class="screen">
+  <div class="kicked-msg">Room Closed</div>
+  <div class="kicked-sub" id="room-closed-reason">The host left the room.</div>
+  <button class="btn btn-primary" onclick="goHome()">Return Home</button>
+</div>
+
+<!-- JOIN OVERLAY — shown on URL link join OR mid-game spectate -->
+<div id="join-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);
+  z-index:200;align-items:center;justify-content:center;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;
+    padding:2.5rem 2rem;width:min(420px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.7)">
+    <div style="font-size:1.4rem;font-weight:900;margin-bottom:.25rem" id="join-overlay-title">Join Game</div>
+    <div style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem" id="join-overlay-sub">Pick your team and role to play</div>
+
+    <div style="display:flex;flex-direction:column;gap:1rem">
+      <div>
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.4rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase">Your Name</div>
+        <input type="text" id="overlay-name" placeholder="Enter your name" maxlength="20" onkeydown="if(event.key==='Enter')overlayJoin()">
+      </div>
+      <div>
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.4rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase">Team</div>
+        <div class="seg" id="overlay-team-seg">
+          <button class="seg-btn active" data-val="red" onclick="setOverlaySeg('team','red',this)">🔴 Red</button>
+          <button class="seg-btn" data-val="blue" onclick="setOverlaySeg('team','blue',this)">🔵 Blue</button>
+        </div>
+      </div>
+      <div id="overlay-role-wrap">
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.4rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase">Role</div>
+        <div class="seg" id="overlay-role-seg">
+          <button class="seg-btn active" data-val="operative" onclick="setOverlaySeg('role','operative',this)">🕵️ Operative</button>
+          <button class="seg-btn" data-val="spymaster" onclick="setOverlaySeg('role','spymaster',this)">👁 Spymaster</button>
+        </div>
+        <div id="overlay-role-note" style="font-size:.75rem;color:var(--muted);margin-top:.4rem;display:none">
+          ⚠️ Spymaster slots are locked once the game starts. Only Operative is available.
+        </div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:.25rem" onclick="overlayJoin()">Join Game</button>
+    </div>
+  </div>
+</div>
+
 <div class="copy-toast" id="copy-toast">Link copied!</div>
 <div class="error-toast" id="error-toast"></div>
 
@@ -376,25 +418,12 @@ if (!pid) { pid = crypto.randomUUID(); localStorage.setItem('cn_pid', pid); }
 // ===== STATE =====
 let ws = null, roomCode = null, gameState = null;
 let chosenTeam = 'red', chosenRole = 'operative';
+let overlayTeam = 'red', overlayRole = 'operative';
 let myName = null, pendingName = null;
 let reconnectTimer = null;
+let urlRoomCode = null; // set if joining via link
 
 // ===== WS =====
-function connect() {
-  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  ws = new WebSocket(`${proto}://${location.host}`);
-  ws.onopen = () => {
-    ws.send(JSON.stringify({ type: 'connect', playerId: pid }));
-    document.getElementById('conn-status').textContent = 'Connected ✓';
-    clearTimeout(reconnectTimer);
-  };
-  ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch { return; } handleMsg(m); };
-  ws.onclose = () => {
-    document.getElementById('conn-status').textContent = 'Reconnecting…';
-    reconnectTimer = setTimeout(connect, 2500);
-  };
-  ws.onerror = () => ws.close();
-}
 function send(obj) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj)); }
 
 // ===== MESSAGE HANDLER =====
@@ -411,14 +440,18 @@ function handleMsg(msg) {
     case 'room_joined':
       roomCode = msg.code;
       applyState(msg.state);
-      showScreen('lobby');
-      // Guest arrives in lobby WITHOUT auto-joining — they pick team/role first
       pendingName = null;
+      if (urlRoomCode) {
+        // Came via invite link — show join overlay before entering lobby/game
+        urlRoomCode = null;
+        showJoinOverlay(msg.state.phase === 'playing');
+      } else {
+        showScreen('lobby');
+      }
       return;
     case 'room_reset':
       roomCode = msg.newCode;
       applyState(msg.state);
-      // Stay on/go to lobby
       if (currentScreen() !== 'lobby') showScreen('lobby');
       return;
     case 'state':
@@ -428,9 +461,17 @@ function handleMsg(msg) {
       showError(msg.msg);
       return;
     case 'kicked':
+      hideJoinOverlay();
       showScreen('kicked');
       return;
+    case 'room_closed':
+      hideJoinOverlay();
+      document.getElementById('room-closed-reason').textContent = msg.reason || 'The host left the room.';
+      roomCode = null; gameState = null;
+      showScreen('room-closed');
+      return;
     case 'left_room':
+      hideJoinOverlay();
       roomCode = null; gameState = null;
       showScreen('home');
       return;
@@ -445,9 +486,16 @@ function applyState(s) {
   if (s.phase === 'lobby') {
     renderLobby(s);
     if (currentScreen() !== 'lobby') showScreen('lobby');
+    hideJoinOverlay();
   } else {
     renderGame(s);
     if (currentScreen() !== 'game') showScreen('game');
+    // Show join overlay if player is spectating (not yet in the game)
+    if (!me && s.phase === 'playing') {
+      showJoinOverlay(true);
+    } else {
+      hideJoinOverlay();
+    }
   }
 }
 function currentScreen() { const a = document.querySelector('.screen.active'); return a ? a.id : null; }
@@ -694,6 +742,50 @@ function submitClue() {
   send({ type: 'clue', word, number });
 }
 
+// ===== JOIN OVERLAY =====
+function showJoinOverlay(midGame) {
+  const overlay = document.getElementById('join-overlay');
+  overlay.style.display = 'flex';
+  document.getElementById('join-overlay-title').textContent = midGame ? 'Join the Game' : 'Join Room';
+  document.getElementById('join-overlay-sub').textContent = midGame
+    ? 'The game is in progress — join as an operative'
+    : 'Pick your team and role to play';
+  // Mid-game: hide spymaster option, force operative
+  const roleWrap = document.getElementById('overlay-role-wrap');
+  const roleNote = document.getElementById('overlay-role-note');
+  if (midGame) {
+    overlayRole = 'operative';
+    setOverlaySeg('role', 'operative', document.querySelector('#overlay-role-seg .seg-btn[data-val="operative"]'));
+    document.querySelector('#overlay-role-seg .seg-btn[data-val="spymaster"]').disabled = true;
+    document.querySelector('#overlay-role-seg .seg-btn[data-val="spymaster"]').style.opacity = '.35';
+    roleNote.style.display = '';
+  } else {
+    document.querySelector('#overlay-role-seg .seg-btn[data-val="spymaster"]').disabled = false;
+    document.querySelector('#overlay-role-seg .seg-btn[data-val="spymaster"]').style.opacity = '';
+    roleNote.style.display = 'none';
+  }
+  // Pre-fill name if known
+  if (myName) document.getElementById('overlay-name').value = myName;
+  setTimeout(() => document.getElementById('overlay-name').focus(), 50);
+}
+function hideJoinOverlay() {
+  document.getElementById('join-overlay').style.display = 'none';
+}
+function setOverlaySeg(type, val, el) {
+  if (!el) return;
+  if (type === 'team') overlayTeam = val; else overlayRole = val;
+  document.querySelectorAll(`#overlay-${type}-seg .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.val === val));
+}
+function overlayJoin() {
+  const name = document.getElementById('overlay-name').value.trim();
+  if (!name) { showError('Enter your name'); return; }
+  myName = name;
+  hideJoinOverlay();
+  if (gameState && gameState.phase === 'lobby') showScreen('lobby');
+  else showScreen('game');
+  send({ type: 'join', name, team: overlayTeam, role: overlayRole });
+}
+
 // ===== SEG =====
 function setSeg(type, val, el) {
   if (type === 'team') chosenTeam = val; else chosenRole = val;
@@ -721,10 +813,39 @@ function esc(s) { const d = document.createElement('div'); d.textContent = s; re
 
 // ===== INIT =====
 window.addEventListener('DOMContentLoaded', () => {
-  const urlCode = new URLSearchParams(location.search).get('room');
-  if (urlCode) document.getElementById('join-code').value = urlCode.toUpperCase();
+  urlRoomCode = new URLSearchParams(location.search).get('room');
+  if (urlRoomCode) {
+    // Joining via invite link — skip home screen, show join overlay immediately
+    urlRoomCode = urlRoomCode.toUpperCase();
+    // Show the overlay on top of home (home stays hidden behind it)
+    // We need to connect first, then join_room, then overlay
+    // Show a loading state on home while we connect
+    document.getElementById('conn-status').textContent = 'Joining room ' + urlRoomCode + '…';
+  } else {
+    document.getElementById('join-code').value = '';
+  }
   connect();
 });
+
+function connect() {
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  ws = new WebSocket(`${proto}://${location.host}`);
+  ws.onopen = () => {
+    ws.send(JSON.stringify({ type: 'connect', playerId: pid }));
+    document.getElementById('conn-status').textContent = urlRoomCode ? 'Joining…' : 'Connected ✓';
+    clearTimeout(reconnectTimer);
+    if (urlRoomCode) {
+      // Auto-connect to the room; overlay will show after room_joined
+      send({ type: 'join_room', code: urlRoomCode });
+    }
+  };
+  ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch { return; } handleMsg(m); };
+  ws.onclose = () => {
+    document.getElementById('conn-status').textContent = 'Reconnecting…';
+    reconnectTimer = setTimeout(connect, 2500);
+  };
+  ws.onerror = () => ws.close();
+}
 </script>
 </body>
 </html>
